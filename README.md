@@ -8,10 +8,13 @@ It was strongly inspired from the ckeditor5-image package.
 
 ## Demo
 
-WIP..
-Check out the demos in the [Image feature](https://ckeditor.com/docs/ckeditor5/latest/features/image.html) guide.
+- See `sample/app.js`
+
+WIP...
 
 ## Documentation
+
+- Works just like Image upload. 
 
 WIP...
 

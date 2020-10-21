@@ -1,0 +1,32 @@
+.ck-content .video.video_resized {
+    max-width: 100%;
+    /*
+    The `<figure>` element for resized videos must not use `display:table` as browsers do not support `max-width` for it well.
+    See https://stackoverflow.com/questions/4019604/chrome-safari-ignoring-max-width-in-table/14420691#14420691 for more.
+    Fortunately, since we control the width, there is no risk that the video will look bad.
+    */
+    display: block;
+    box-sizing: border-box;
+
+    & video {
+          /* For resized videos it is the `<figure>` element that determines the video width. */
+          width: 100%;
+      }
+
+    & > figcaption {
+          /* The `<figure>` element uses `display:block`, so `<figcaption>` also has to. */
+          display: block;
+      }
+}
+
+[dir="ltr"] .ck.ck-button.ck-button_with-text.ck-resize-video-button .ck-button__icon {
+    margin-right: var(--ck-spacing-standard);
+}
+
+[dir="rtl"] .ck.ck-button.ck-button_with-text.ck-resize-video-button .ck-button__icon {
+    margin-left: var(--ck-spacing-standard);
+}
+
+.ck.ck-dropdown .ck-button.ck-resize-video-button .ck-button__label {
+    width: 4em;
+}

@@ -1,0 +1,13 @@
+.ck-content .video {
+    display: table;
+    clear: both;
+    text-align: center;
+    margin: 1em auto;
+
+    & video {
+        display: block;
+        margin: 0 auto;
+        max-width: 100%;
+        min-width: 50px;
+    }
+}

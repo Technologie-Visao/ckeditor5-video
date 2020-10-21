@@ -1,0 +1,10 @@
+.ck.ck-editor__editable .video {
+    position: relative;
+}
+
+/* Upload progress bar. */
+.ck.ck-editor__editable .video .ck-progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
