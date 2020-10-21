@@ -6,6 +6,9 @@ All changes in the package are documented in the main repository. See: https://g
 Changes for the past releases are available below.
 
 ## 0.0.1(2020-10-20)
-### Changes
+### Added
 
 * Published package to npm
+* Video plugin
+* Video Upload Plugin
+* Video Resize Plugin
