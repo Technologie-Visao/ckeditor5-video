@@ -1,0 +1,57 @@
+{
+  "name": "@visao/ckeditor5-video",
+  "version": "0.0.1",
+  "description": "Video feature for CKEditor 5.",
+  "keywords": [
+    "ckeditor",
+    "ckeditor5",
+    "ckeditor 5",
+    "ckeditor5-feature",
+    "ckeditor5-plugin",
+    "ckeditor5-video-upload",
+    "ckeditor5-video-upload-plugin",
+  ],
+  "dependencies": {
+    "@ckeditor/ckeditor5-clipboard": "^23.0.0",
+    "@ckeditor/ckeditor5-core": "^23.0.0",
+    "@ckeditor/ckeditor5-engine": "^23.0.0",
+    "@ckeditor/ckeditor5-ui": "^23.0.0",
+    "@ckeditor/ckeditor5-upload": "^23.0.0",
+    "@ckeditor/ckeditor5-utils": "^23.0.0",
+    "@ckeditor/ckeditor5-widget": "^23.0.0"
+  },
+  "devDependencies": {
+    "@ckeditor/ckeditor5-basic-styles": "^23.0.0",
+    "@ckeditor/ckeditor5-block-quote": "^23.0.0",
+    "@ckeditor/ckeditor5-cloud-services": "^23.0.0",
+    "@ckeditor/ckeditor5-ckfinder": "^23.0.0",
+    "@ckeditor/ckeditor5-editor-classic": "^23.0.0",
+    "@ckeditor/ckeditor5-enter": "^23.0.0",
+    "@ckeditor/ckeditor5-easy-image": "^23.0.0",
+    "@ckeditor/ckeditor5-heading": "^23.0.0",
+    "@ckeditor/ckeditor5-indent": "^23.0.0",
+    "@ckeditor/ckeditor5-link": "^23.0.0",
+    "@ckeditor/ckeditor5-list": "^23.0.0",
+    "@ckeditor/ckeditor5-paragraph": "^23.0.0",
+    "@ckeditor/ckeditor5-table": "^23.0.0",
+    "@ckeditor/ckeditor5-typing": "^23.0.0",
+    "@ckeditor/ckeditor5-undo": "^23.0.0"
+  },
+  "engines": {
+    "node": ">=12.0.0",
+    "npm": ">=5.7.1"
+  },
+  "author": "Visao",
+  "license": "GPL-2.0-or-later",
+  "homepage": "https://github.com/Technologie-Visao/ckeditor5-video",
+  "bugs": "https://github.com/Technologie-Visao/ckeditor5-video/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Technologie-Visao/ckeditor5-video.git",
+  },
+  "files": [
+    "lang",
+    "src",
+    "theme"
+  ]
+}
