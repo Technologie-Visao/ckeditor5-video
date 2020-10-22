@@ -1,6 +1,6 @@
 import Command from "@ckeditor/ckeditor5-core/src/command";
 import FileRepository from "@ckeditor/ckeditor5-upload/src/filerepository";
-import {insertVideo} from "../video/utils";
+import {insertVideo, isVideoAllowed} from "../video/utils";
 
 function uploadVideo( writer, model, fileRepository, file ) {
     const loader = fileRepository.createLoader( file );
@@ -32,7 +32,6 @@ export default class UploadVideoCommand extends Command {
         const videoElement = this.editor.model.document.selection.getSelectedElement();
         const isVideo = videoElement && videoElement.name === 'video' || false;
 
-        // this.isEnabled = isVideoAllowed( this.editor.model ) || isVideo;
-        this.isEnabled = true;
+        this.isEnabled = isVideoAllowed( this.editor.model ) || isVideo;
     }
 }
