@@ -1,0 +1,93 @@
+# Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
+#
+#                                     !!! IMPORTANT !!!
+#
+#         Before you edit this file, please keep in mind that contributing to the project
+#                translations is possible ONLY via the Transifex online service.
+#
+#         To submit your translations, visit https://www.transifex.com/ckeditor/ckeditor5.
+#
+#                   To learn more, check out the official contributor's guide:
+#     https://ckeditor.com/docs/ckeditor5/latest/framework/guides/contributing/contributing.html
+#
+msgid ""
+msgstr ""
+"Language-Team: Chinese (China) (https://www.transifex.com/ckeditor/teams/11143/zh_CN/)\n"
+"Language: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgctxt "The label for the video widget."
+msgid "video widget"
+msgstr "视频小部件"
+
+msgctxt "The label for the Side video option."
+msgid "Side video"
+msgstr "视频侧边显示"
+
+msgctxt "The label for the Full size video option."
+msgid "Full size video"
+msgstr "视频通栏显示"
+
+msgctxt "The label for the Left aligned video option."
+msgid "Left aligned video"
+msgstr "视频左侧对齐"
+
+msgctxt "The label for the Centered video option."
+msgid "Centered video"
+msgstr "视频居中"
+
+msgctxt "The label for the Right aligned video option."
+msgid "Right aligned video"
+msgstr "视频右侧对齐"
+
+msgctxt "The label for the upload video toolbar button."
+msgid "Upload Video"
+msgstr "上传视频"
+
+msgctxt "The title of the notification displayed when upload fails."
+msgid "Upload failed"
+msgstr "上传失败"
+
+msgctxt "The label used by assistive technologies describing a video toolbar attached to a video widget."
+msgid "Video toolbar"
+msgstr "视频工具栏"
+
+msgctxt "The label used for the dropdown in the video toolbar containing defined resize options."
+msgid "Resize video"
+msgstr "调整视频大小"
+
+msgctxt "The label used for the standalone resize options buttons in the video toolbar."
+msgid "Resize video to %0"
+msgstr "调整视频大小为0%"
+
+msgctxt "The accessibility label of the standalone video resize reset option button in the video toolbar for screen readers."
+msgid "Resize video to the original size"
+msgstr "调整视频大小为原始大小"
+
+msgctxt "The default label for the resize option that resets the size of the video."
+msgid "Original"
+msgstr "原始大小"
+
+msgctxt "The accessibility label of the video resize dropdown for screen readers."
+msgid "Video resize list"
+msgstr "视频大小列表"
+
+msgctxt "The label of the form submit button if the video source URL input has no value."
+msgid "Insert"
+msgstr "插入"
+
+msgctxt "The label of the form submit button if the video source URL input has a value."
+msgid "Update"
+msgstr "更新"
+
+msgctxt "The input label for the Insert video via URL form."
+msgid "Insert video via URL"
+msgstr "通过URL地址插入视频"
+
+msgctxt "The input label for the Insert video via URL form for a pre-existing video."
+msgid "Update video URL"
+msgstr "更新视频URL地址"
+
+msgctxt "The content of the tip below the Insert video via URL form."
+msgid "Paste the video source URL."
+msgstr "将视频的URL地址粘贴在这里"
