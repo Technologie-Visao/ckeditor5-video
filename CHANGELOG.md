@@ -3,6 +3,10 @@ Changelog
 
 Changes for the past releases below.
 
+## 23.0.1(2020-11-19)
+### Added
+* Chinese translations
+
 ## 23.0.0(2020-11-18)
 ### Added
 * Style support [#1](https://github.com/Technologie-Visao/ckeditor5-video/issues/1) 
