@@ -54,19 +54,19 @@ msgstr "Redimensionner la vidéo"
 
 msgctxt "The label used for the standalone resize options buttons in the video toolbar."
 msgid "Resize video to %0"
-msgstr "Redimensionner la vidéo à% 0"
+msgstr "Redimensionner à% 0"
 
 msgctxt "The accessibility label of the standalone video resize reset option button in the video toolbar for screen readers."
 msgid "Resize video to the original size"
-msgstr "Redimensionner la vidéo à sa taille d'origine"
+msgstr "Appliquer les dimensions d'origine"
 
 msgctxt "The default label for the resize option that resets the size of the video."
 msgid "Original"
-msgstr "Origine"
+msgstr "Taille originale"
 
 msgctxt "The accessibility label of the video resize dropdown for screen readers."
 msgid "Video resize list"
-msgstr "Liste de redimensionnement vidéo"
+msgstr "Liste des tailles de vidéo"
 
 msgctxt "The label of the form submit button if the video source URL input has no value."
 msgid "Insert"
@@ -74,16 +74,16 @@ msgstr "Insérer"
 
 msgctxt "The label of the form submit button if the video source URL input has a value."
 msgid "Update"
-msgstr "Mettre à jour"
+msgstr "Modifier"
 
 msgctxt "The input label for the Insert video via URL form."
 msgid "Insert video via URL"
-msgstr "Insérer une vidéo via un lien URL"
+msgstr "Insérer une vidéo à partir d'un URL"
 
 msgctxt "The input label for the Insert video via URL form for a pre-existing video."
 msgid "Update video URL"
-msgstr "Mettre à jour le lien URL de la vidéo"
+msgstr "Modifier l'URL de la vidéo"
 
 msgctxt "The content of the tip below the Insert video via URL form."
 msgid "Paste the video source URL."
-msgstr "Collez le lien URL de la source vidéo"
+msgstr "Collez l'URL de la vidéo insérer"
