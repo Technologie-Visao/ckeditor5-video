@@ -29,10 +29,10 @@
     "@ckeditor/ckeditor5-utils" "^23.1.0"
     lodash-es "^4.17.15"
 
-"@ckeditor/ckeditor5-dev-utils@^23.5.1":
-  version "23.5.1"
-  resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-dev-utils/-/ckeditor5-dev-utils-23.5.1.tgz#d5388bb6c06b3bac6b54f4e3b18809e21cc31475"
-  integrity sha512-oe7puLx6NQ6Dr0kW0ZsRnVoCxn/Z0xvrsq+Uw3X2+71yqPFj3IQ8YK3inqBhRmsABC5IoMFQrWTREdMebF6B5w==
+"@ckeditor/ckeditor5-dev-utils@^23.6.1":
+  version "23.6.1"
+  resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-dev-utils/-/ckeditor5-dev-utils-23.6.1.tgz#27389304e23b7169419e08763caa87efac4139fe"
+  integrity sha512-BW+JjB6kpU2Y3pU8D4tZNijWe8ILFUD/lLVzr5OLDbSaq7BwvQ6f/n4HvRXUwk1828WTVeYltBwyPDlzposvUQ==
   dependencies:
     acorn "^6.2.1"
     acorn-walk "^6.2.0"
