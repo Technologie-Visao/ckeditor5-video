@@ -3,6 +3,16 @@ Changelog
 
 Changes for the past releases below.
 
+## 23.0.0(2020-11-18)
+### Added
+* Style support [#1](https://github.com/Technologie-Visao/ckeditor5-video/issues/1) 
+* Balloon toolbar support
+* More documentation
+
+### Fixed
+* Jumping versions to follow the ck-editor5 dependencies
+of this package. (23.0.x here)
+
 ## 0.0.2(2020-10-21)
 ### Added
 * A bit of doc in the readme

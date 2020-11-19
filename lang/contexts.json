@@ -1,6 +1,12 @@
 {
 	"video widget": "The label for the video widget.",
+	"Side video": "The label for the Side video option.",
+	"Full size video": "The label for the Full size video option.",
+	"Left aligned video": "The label for the Left aligned video option.",
+	"Centered video": "The label for the Centered video option.",
+	"Right aligned video": "The label for the Right aligned video option.",
 	"Upload failed": "The title of the notification displayed when upload fails.",
+	"Video toolbar": "The label used by assistive technologies describing an video toolbar attached to an video widget.",
 	"Resize video": "The label used for the dropdown in the video toolbar containing defined resize options.",
 	"Resize video to %0": "The label used for the standalone resize options buttons in the video toolbar.",
 	"Resize video to the original size": "The accessibility label of the standalone video resize reset option button in the video toolbar for screen readers.",
