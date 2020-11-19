@@ -12,7 +12,7 @@ It was strongly inspired from the ckeditor5-image package.
 
 ## Documentation
 
-#### Installation
+## Installation
 Add this to your custom build or inside your project.
 
 - With npm
@@ -23,27 +23,44 @@ Add this to your custom build or inside your project.
 -With yarn
 
 `yarn add -D @visao/@visao/ckeditor5-video    `
-- Works just like Image upload. 
+- Works pretty much just like Image upload. 
 
-#### Usage
+## Plugins
 
-- Add the `Video` plugin to parse videos in the editor
-    - Mandatory for the other plugins VideoRelated plugins
+#### Video Plugin 
+- Plugin to parse videos in the editor
+- Mandatory for the other plugins VideoRelated plugins
     
-- Add the `VideoUpload` plugin if video uploading is needed
-    - Specify allowed media(mime) types. Default => `['mp4', 'webm', 'ogg']`
-    - Allow multiple file upload or not, Default => `true`
-    - Add the `videoUpload` toolbar option to access the file repository 
-    - Must provide an `UploadAdapter`. See [ckeditor5 documentation](https://ckeditor.com/docs/ckeditor5/latest/framework/guides/deep-dive/upload-adapter.html)
-- Add the `VideoResizing` plugin for resizing the video in the model 
 ```
-...
+ClassicEditor
+    .create( document.querySelector( '#editor' ), {
+        plugins: [Video],
+        video: {}
+    } )
+
+```
+
+#### VideoUpload Plugin 
+- Plugin to upload video files via toolbar upload prompt or drag and drop functionalities 
+- Specify allowed media(mime) types. Default => `['mp4', 'webm', 'ogg']`
+- Allow multiple file upload or not, Default => `true`
+- Add the `videoUpload` toolbar option to access the file repository 
+- Must provide an `UploadAdapter`. 
+See [ckeditor5 documentation](https://ckeditor.com/docs/ckeditor5/latest/framework/guides/deep-dive/upload-adapter.html)
+- The use of the Video plugin is mandatory for this plugin to work
+    
+```
+function VideoUploadAdapterPlugin( editor ) {
+    editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+        return new VideoUploadAdapter(loader);
+    };
+}
 
 ClassicEditor
     .create( document.querySelector( '#editor' ), {
-        plugins: [ Essentials, Paragraph, Bold, Italic, Heading, List, Video, VideoUpload, VideoResize ],
+        plugins: [Video, VideoUpload],
         extraPlugins: [VideoUploadAdapterPlugin],
-        toolbar: [ 'heading', 'bold', 'italic', 'numberedList', 'bulletedList', 'videoUpload' ],
+        toolbar: ['videoUpload'],
         video: {
             upload: {
                 types: ['mp4'],
@@ -51,9 +68,76 @@ ClassicEditor
             }
         }
     } )
-
-...
 ```
+
+#### VideoToolbar Plugin
+- Balloon toolbar for different Video plugin plugins
+- See VideoResizing and VideoStyle sections for examples
+
+#### VideoResizing Plugin 
+- Plugin for resizing the video in the editor
+- Should work just like image resize. See the ck-editor 5 documentation for more examples.
+```
+ClassicEditor
+    .create( document.querySelector( '#editor' ), {
+        plugins: [Video, VideoToolbar, VideoResize] or [Video, VideoToolbar, VideoResizeEditing, VideoResizeHandles],
+        video: {
+            resizeUnit: 'px'
+            // Configure the available video resize options.
+            resizeOptions: [
+                {
+                    name: 'videoResize:original',
+                    value: null,
+                    label: 'Original',
+                    icon: 'original'
+                },
+                {
+                    name: 'videoResize:50',
+                    value: 50,
+                    label: '50',
+                    icon: 'medium'
+                },
+                {
+                    name: 'videoResize:75',
+                    value: '75',
+                    label: '75',
+                    icon: 'large'
+                }
+            ],
+            toolbar: [
+                'videoResize',
+                '|',
+                'videoResize:50',
+                'videoResize:75',
+                'videoResize:original'
+            ]
+        },
+    } )
+```
+
+#### VideoStyle Plugin
+- Plugin for styling the video plugins.
+- Should work just like image resize. See the ck-editor 5 documentation for more examples.
+- Predefined styles are:
+  - `full`
+  - `side`
+  - `alignLeft`
+  - `alignCenter`
+  - `alignRight`
+```
+ClassicEditor
+    .create( document.querySelector( '#editor' ), {
+        plugins: [Video, VideoToolbar, VideoStyle]
+        video: {
+            styles: [
+                'alignLeft', 'alignCenter', 'alignRight'
+            ],
+            toolbar: ['videoStyle:alignLeft', 'videoStyle:alignCenter', 'videoStyle:alignRight']
+        },
+    } )
+```
+  
+
 
 ## License
 

@@ -20,11 +20,31 @@ msgctxt "The label for the video widget."
 msgid "video widget"
 msgstr "Objet vidéo"
 
+msgctxt "The label for the Side video option."
+msgid "Side vidéo"
+msgstr "Vidéo latérale"
+
+msgctxt "The label for the Full size video option."
+msgid "Full size video"
+msgstr "Vidéo taille réelle"
+
+msgctxt "The label for the Left aligned video option."
+msgid "Left aligned video"
+msgstr "Vidéo alignée à gauche"
+
+msgctxt "The label for the Centered video option."
+msgid "Centered video"
+msgstr "Vidéo centrée"
+
+msgctxt "The label for the Right aligned video option."
+msgid "Right aligned video"
+msgstr "Vidéo alignée à droite"
+
 msgctxt "The title of the notification displayed when upload fails."
 msgid "Upload failed"
 msgstr "Échec de l'envoi"
 
-msgctxt "The label used by assistive technologies describing an video toolbar attached to an video widget."
+msgctxt "The label used by assistive technologies describing a video toolbar attached to a video widget."
 msgid "Video toolbar"
 msgstr "Barre d'outils des vidéos"
 

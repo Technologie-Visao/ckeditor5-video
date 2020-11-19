@@ -33,9 +33,6 @@ export default class VideoResizeButtons extends Plugin {
 		this._resizeUnit = editor.config.get( 'video.resizeUnit' );
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	init() {
 		const editor = this.editor;
 		const options = editor.config.get( 'video.resizeOptions' );
