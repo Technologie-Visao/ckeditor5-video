@@ -6,6 +6,10 @@ export default class VideoLoadObserver extends Observer {
 		this.listenTo( domRoot, 'load', ( event, domEvent ) => {
 			const domElement = domEvent.target;
 
+			if ( this.checkShouldIgnoreEventFromTarget( domElement ) ) {
+				return;
+			}
+
 			if ( domElement.tagName === 'VIDEO' ) {
 				this._fireEvents( domEvent );
 			}

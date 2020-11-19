@@ -2,7 +2,7 @@ import fullWidthIcon from '@ckeditor/ckeditor5-core/theme/icons/object-full-widt
 import leftIcon from '@ckeditor/ckeditor5-core/theme/icons/object-left.svg';
 import centerIcon from '@ckeditor/ckeditor5-core/theme/icons/object-center.svg';
 import rightIcon from '@ckeditor/ckeditor5-core/theme/icons/object-right.svg';
-import { attachLinkToDocumentation } from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
+import { logWarning } from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
 
 const defaultStyles = {
     // This option is equal to the situation when no style is applied.
@@ -69,10 +69,7 @@ function _normalizeStyle( style ) {
         }
         // If it's just a name but none of the defaults, warn because probably it's a mistake.
         else {
-            console.warn(
-                attachLinkToDocumentation( 'video-style-not-found' ),
-                { name: styleName }
-            );
+            logWarning( 'image-style-not-found', { name: styleName } );
 
             // Normalize the style anyway to prevent errors.
             style = {
