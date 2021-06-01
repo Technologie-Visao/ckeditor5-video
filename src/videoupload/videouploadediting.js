@@ -37,6 +37,7 @@ export default class VideoUploadEditing extends Plugin {
         const schema = editor.model.schema;
         const conversion = editor.conversion;
         const fileRepository = editor.plugins.get(FileRepository);
+
         const videoTypes = createVideoMediaTypeRegExp(editor.config.get('video.upload.types'));
 
         // Setup schema to allow uploadId and uploadStatus for videos.

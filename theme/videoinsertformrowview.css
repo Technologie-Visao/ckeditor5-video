@@ -1,0 +1,29 @@
+.ck.ck-video-insert-form {
+    &:focus {
+        outline: none;
+    }
+}
+
+.ck.ck-form__row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+
+    & > *:not(.ck-label) {
+        flex-grow: 1;
+    }
+
+    &.ck-video-insert-form__action-row {
+        margin-top: var(--ck-spacing-standard);
+
+        & .ck-button-save,
+        & .ck-button-cancel {
+            justify-content: center;
+        }
+
+        & .ck-button .ck-button__label {
+            color: var(--ck-color-text);
+        }
+    }
+}
