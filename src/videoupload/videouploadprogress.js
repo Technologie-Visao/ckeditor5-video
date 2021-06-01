@@ -1,13 +1,18 @@
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
-import FileRepository from '@ckeditor/ckeditor5-upload/src/filerepository';
-import uploadingPlaceholder from '../../theme/icons/video_placeholder.svg';
+import { Plugin } from 'ckeditor5/src/core';
+import { FileRepository } from 'ckeditor5/src/upload';
 import { getViewVideoFromWidget } from '../video/utils';
+
+import uploadingPlaceholder from '../../theme/icons/video_placeholder.svg';
 
 import '../../theme/videouploadprogress.css';
 import '../../theme/videouploadicon.css';
 import '../../theme/videouploadloader.css';
 
 export default class VideoUploadProgress extends Plugin {
+    static get pluginName() {
+        return 'VideoUploadProgress';
+    }
+
     constructor( editor ) {
         super( editor );
 

@@ -1,15 +1,16 @@
-import Command from "@ckeditor/ckeditor5-core/src/command";
-import FileRepository from "@ckeditor/ckeditor5-upload/src/filerepository";
+import { FileRepository } from 'ckeditor5/src/upload';
+import { Command } from 'ckeditor5/src/core';
+import { toArray } from 'ckeditor5/src/utils';
 import {insertVideo, isVideoAllowed} from "../video/utils";
 
-function uploadVideo( writer, model, fileRepository, file ) {
+function uploadVideo( model, fileRepository, file ) {
     const loader = fileRepository.createLoader( file );
 
     if ( !loader ) {
         return;
     }
 
-    insertVideo( writer, model, { uploadId: loader.id } );
+    insertVideo( model, { uploadId: loader.id } );
 }
 
 export default class UploadVideoCommand extends Command {
@@ -19,13 +20,9 @@ export default class UploadVideoCommand extends Command {
 
         const fileRepository = editor.plugins.get( FileRepository );
 
-        model.change( writer => {
-            const filesToUpload = Array.isArray( options.files ) ? options.files : [ options.files ];
-
-            for ( const file of filesToUpload ) {
-                uploadVideo( writer, model, fileRepository, file );
-            }
-        } );
+        for ( const file of toArray( options.file ) ) {
+            uploadVideo( model, fileRepository, file );
+        }
     }
 
     refresh() {

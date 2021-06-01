@@ -1,7 +1,10 @@
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
-import Notification from '@ckeditor/ckeditor5-ui/src/notification/notification';
+import { Plugin } from 'ckeditor5/src/core';
+import { UpcastWriter } from 'ckeditor5/src/engine';
+import { Notification } from 'ckeditor5/src/ui';
+import { ClipboardPipeline } from 'ckeditor5/src/clipboard';
+import { FileRepository } from 'ckeditor5/src/upload';
+import { env } from 'ckeditor5/src/utils';
 import UploadVideoCommand from "./uploadvideocommand";
-import FileRepository from "@ckeditor/ckeditor5-upload/src/filerepository";
 import {
     createVideoMediaTypeRegExp,
     fetchLocalVideo,
@@ -9,9 +12,6 @@ import {
     isHtmlIncluded,
     isLocalVideo
 } from "./utils";
-import Clipboard from "@ckeditor/ckeditor5-clipboard/src/clipboard";
-import UpcastWriter from "@ckeditor/ckeditor5-engine/src/view/upcastwriter";
-import env from "@ckeditor/ckeditor5-utils/src/env";
 import {getViewVideoFromWidget} from "../video/utils";
 
 const DEFAULT_VIDEO_EXTENSIONS = ['mp4', 'webm', 'ogg'];
@@ -19,7 +19,7 @@ const DEFAULT_VIDEO_EXTENSIONS = ['mp4', 'webm', 'ogg'];
 
 export default class VideoUploadEditing extends Plugin {
     static get requires() {
-        return [FileRepository, Notification, Clipboard];
+        return [FileRepository, Notification, ClipboardPipeline];
     }
 
     constructor(editor) {
@@ -44,7 +44,9 @@ export default class VideoUploadEditing extends Plugin {
             allowAttributes: ['uploadId', 'uploadStatus']
         });
 
-        editor.commands.add('uploadVideo', new UploadVideoCommand(editor))
+        const uploadVideoCommand = new UploadVideoCommand( editor );
+        editor.commands.add( 'uploadVideo', uploadVideoCommand );
+        editor.commands.add( 'videoUpload', uploadVideoCommand );
 
         // Register upcast converter for uploadId.
         conversion.for('upcast')
@@ -72,25 +74,25 @@ export default class VideoUploadEditing extends Plugin {
                 return videoTypes.test(file.type);
             });
 
-            const ranges = data.targetRanges.map(viewRange => editor.editing.mapper.toModelRange(viewRange));
+            if ( !videos.length ) {
+                return;
+            }
+
+            evt.stop();
 
             editor.model.change(writer => {
-                // Set selection to paste target.
-                writer.setSelection(ranges);
-
-                if (videos.length) {
-                    evt.stop();
-
-                    // Upload videos after the selection has changed in order to ensure the command's state is refreshed.
-                    editor.model.enqueueChange('default', () => {
-                        editor.execute('videoUpload', {file: videos});
-                    });
+                if ( data.targetRanges ) {
+                    writer.setSelection( data.targetRanges.map( viewRange => editor.editing.mapper.toModelRange( viewRange ) ) );
                 }
+
+                editor.model.enqueueChange( 'default', () => {
+                    editor.execute( 'uploadVideo', { file: videos } );
+                } );
             });
         });
 
 
-        this.listenTo(editor.plugins.get(Clipboard), 'inputTransformation', (evt, data) => {
+        this.listenTo(editor.plugins.get('ClipboardPipeline'), 'inputTransformation', (evt, data) => {
             const fetchableVideos = Array.from(editor.editing.view.createRangeIn(data.content))
                 .filter(value => isLocalVideo(value.item) && !value.item.getAttribute('uploadProcessed'))
                 .map(value => {
@@ -157,6 +159,16 @@ export default class VideoUploadEditing extends Plugin {
                 }
             }
         });
+
+        this.on( 'uploadComplete', ( evt, { videoElement, data } ) => {
+            const urls = data.urls ? data.urls : data;
+
+            this.editor.model.change( writer => {
+                writer.setAttribute( 'src', urls.default, videoElement );
+                this._parseAndSetSrcsetAttributeOnVideo( urls, videoElement, writer );
+            } );
+        }, { priority: 'low' } );
+
     }
 
     _readAndUpload(loader, videoElement) {
@@ -213,7 +225,8 @@ export default class VideoUploadEditing extends Plugin {
             })
             .then(data => {
                 model.enqueueChange('transparent', writer => {
-                    writer.setAttributes({uploadStatus: 'complete', src: data.default}, videoElement);
+                    writer.setAttribute( 'uploadStatus', 'complete', videoElement );
+                    this.fire( 'uploadComplete', { data, videoElement } );
                 });
 
                 clean();
@@ -248,6 +261,30 @@ export default class VideoUploadEditing extends Plugin {
             });
 
             fileRepository.destroyLoader(loader);
+        }
+    }
+
+    _parseAndSetSrcsetAttributeOnVideo(data, video, writer ) {
+        let maxWidth = 0;
+
+        const srcsetAttribute = Object.keys( data )
+            .filter( key => {
+                const width = parseInt( key, 10 );
+
+                if ( !isNaN( width ) ) {
+                    maxWidth = Math.max( maxWidth, width );
+
+                    return true;
+                }
+            } )
+            .map( key => `${ data[ key ] } ${ key }w` )
+            .join( ', ' );
+
+        if ( srcsetAttribute != '' ) {
+            writer.setAttribute( 'srcset', {
+                data: srcsetAttribute,
+                width: maxWidth
+            }, video );
         }
     }
 }

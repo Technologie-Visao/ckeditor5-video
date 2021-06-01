@@ -1,8 +1,7 @@
-
-import Command from '@ckeditor/ckeditor5-core/src/command';
+import { Command } from 'ckeditor5/src/core';
 import { isVideo } from '../video/utils';
 
-export default class VideoResizeCommand extends Command {
+export default class ResizeVideoCommand extends Command {
 	refresh() {
 		const element = this.editor.model.document.selection.getSelectedElement();
 

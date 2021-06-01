@@ -1,5 +1,6 @@
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
-import WidgetResize from '@ckeditor/ckeditor5-widget/src/widgetresize';
+import { Plugin } from 'ckeditor5/src/core';
+import { WidgetResize } from 'ckeditor5/src/widget';
+import VideoLoadObserver from '../video/videoloadobserver';
 
 export default class VideoResizeHandles extends Plugin {
 	static get requires() {
@@ -11,50 +12,71 @@ export default class VideoResizeHandles extends Plugin {
 	}
 
 	init() {
+		const command = this.editor.commands.get('resizeVideo');
+		this.bind('isEnabled').to(command);
+
+		this._setupResizerCreator();
+	}
+
+	_setupResizerCreator() {
+
 		const editor = this.editor;
-		const command = editor.commands.get( 'videoResize' );
+		const editingView = editor.editing.view;
 
-		this.bind( 'isEnabled' ).to( command );
+		editingView.addObserver( VideoLoadObserver );
+		this.listenTo( editingView.document, 'videoLoaded', ( evt, domEvent ) => {
+			if ( !domEvent.target.matches( 'figure.video.ck-widget > video, figure.video.ck-widget > a > video' ) ) {
+				return;
+			}
 
-		editor.editing.downcastDispatcher.on( 'insert:video', ( evt, data, conversionApi ) => {
-			const widget = conversionApi.mapper.toViewElement( data.item );
+			const videoView = editor.editing.view.domConverter.domToView( domEvent.target );
+			const widgetView = videoView.findAncestor( 'figure' );
+			let resizer = this.editor.plugins.get( WidgetResize ).getResizerByViewElement( widgetView );
 
-			const resizer = editor.plugins
+			if ( resizer ) {
+				resizer.redraw();
+
+				return;
+			}
+
+
+			const mapper = editor.editing.mapper;
+			const videoModel = mapper.toModelElement( widgetView );
+
+			resizer = editor.plugins
 				.get( WidgetResize )
 				.attachTo( {
 					unit: editor.config.get( 'video.resizeUnit' ),
 
-					modelElement: data.item,
-					viewElement: widget,
+					modelElement: videoModel,
+					viewElement: widgetView,
 					editor,
-
 					getHandleHost( domWidgetElement ) {
 						return domWidgetElement.querySelector( 'video' );
 					},
 					getResizeHost( domWidgetElement ) {
 						return domWidgetElement;
 					},
-					// TODO consider other positions.
 					isCentered() {
-						const videoStyle = data.item.getAttribute( 'videoStyle' );
+						const videoStyle = videoModel.getAttribute( 'videoStyle' );
 
 						return !videoStyle || videoStyle === 'full' || videoStyle === 'alignCenter';
 					},
 
 					onCommit( newValue ) {
-						editor.execute( 'videoResize', { width: newValue } );
+						editor.execute( 'resizeVideo', { width: newValue } );
 					}
 				} );
 
 			resizer.on( 'updateSize', () => {
-				if ( !widget.hasClass( 'video_resized' ) ) {
-					editor.editing.view.change( writer => {
-						writer.addClass( 'video_resized', widget );
+				if ( !widgetView.hasClass( 'video_resized' ) ) {
+					editingView.change( writer => {
+						writer.addClass( 'video_resized', widgetView );
 					} );
 				}
 			} );
 
 			resizer.bind( 'isEnabled' ).to( this );
-		}, { priority: 'low' } );
+		} );
 	}
 }

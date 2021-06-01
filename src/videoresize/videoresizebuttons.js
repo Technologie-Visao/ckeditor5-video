@@ -1,21 +1,13 @@
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
-import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
-import { createDropdown, addListToDropdown } from '@ckeditor/ckeditor5-ui/src/dropdown/utils';
-import DropdownButtonView from '@ckeditor/ckeditor5-ui/src/dropdown/button/dropdownbuttonview';
-import Model from '@ckeditor/ckeditor5-ui/src/model';
-import Collection from '@ckeditor/ckeditor5-utils/src/collection';
-import CKEditorError from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
-import iconSmall from '@ckeditor/ckeditor5-core/theme/icons/object-size-small.svg';
-import iconMedium from '@ckeditor/ckeditor5-core/theme/icons/object-size-medium.svg';
-import iconLarge from '@ckeditor/ckeditor5-core/theme/icons/object-size-large.svg';
-import iconFull from '@ckeditor/ckeditor5-core/theme/icons/object-size-full.svg';
+import { Plugin, icons } from 'ckeditor5/src/core';
+import { ButtonView, DropdownButtonView, Model, createDropdown, addListToDropdown } from 'ckeditor5/src/ui';
+import { CKEditorError, Collection } from 'ckeditor5/src/utils';
 import VideoResizeEditing from "./videoresizeediting";
 
 const RESIZE_ICONS = {
-	small: iconSmall,
-	medium: iconMedium,
-	large: iconLarge,
-	original: iconFull
+	small: icons.objectSizeSmall,
+	medium: icons.objectSizeMedium,
+	large: icons.objectSizeLarge,
+	original: icons.objectSizeFull
 };
 
 export default class VideoResizeButtons extends Plugin {
@@ -36,7 +28,7 @@ export default class VideoResizeButtons extends Plugin {
 	init() {
 		const editor = this.editor;
 		const options = editor.config.get( 'video.resizeOptions' );
-		const command = editor.commands.get( 'videoResize' );
+		const command = editor.commands.get( 'resizeVideo' );
 
 		this.bind( 'isEnabled' ).to( command );
 
@@ -54,7 +46,7 @@ export default class VideoResizeButtons extends Plugin {
 
 		editor.ui.componentFactory.add( name, locale => {
 			const button = new ButtonView( locale );
-			const command = editor.commands.get( 'videoResize' );
+			const command = editor.commands.get( 'resizeVideo' );
 			const labelText = this._getOptionLabelValue( option, true );
 
 			if ( !RESIZE_ICONS[ icon ] ) {
@@ -78,7 +70,7 @@ export default class VideoResizeButtons extends Plugin {
 			button.bind( 'isOn' ).to( command, 'value', getIsOnButtonCallback( optionValueWithUnit ) );
 
 			this.listenTo( button, 'execute', () => {
-				editor.execute( 'videoResize', { width: optionValueWithUnit } );
+				editor.execute( 'resizeVideo', { width: optionValueWithUnit } );
 			} );
 
 			return button;
@@ -91,15 +83,15 @@ export default class VideoResizeButtons extends Plugin {
 		const originalSizeOption = options.find( option => !option.value );
 
 		// Register dropdown.
-		editor.ui.componentFactory.add( 'videoResize', locale => {
-			const command = editor.commands.get( 'videoResize' );
+		const componentCreator = locale => {
+			const command = editor.commands.get( 'resizeVideo' );
 			const dropdownView = createDropdown( locale, DropdownButtonView );
 			const dropdownButton = dropdownView.buttonView;
 
 			dropdownButton.set( {
 				tooltip: t( 'Resize video' ),
 				commandValue: originalSizeOption.value,
-				icon: iconMedium,
+				icon: RESIZE_ICONS.medium,
 				isToggleable: true,
 				label: this._getOptionLabelValue( originalSizeOption ),
 				withText: true,
@@ -127,7 +119,10 @@ export default class VideoResizeButtons extends Plugin {
 			} );
 
 			return dropdownView;
-		} );
+		};
+
+		editor.ui.componentFactory.add( 'resizeVideo', componentCreator );
+		editor.ui.componentFactory.add( 'videoResize', componentCreator );
 	}
 
 	_getOptionLabelValue( option, forTooltip ) {
@@ -158,7 +153,7 @@ export default class VideoResizeButtons extends Plugin {
 			const definition = {
 				type: 'button',
 				model: new Model( {
-					commandName: 'videoResize',
+					commandName: 'resizeVideo',
 					commandValue: optionValueWithUnit,
 					label: this._getOptionLabelValue( option ),
 					withText: true,

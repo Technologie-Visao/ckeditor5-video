@@ -1,6 +1,6 @@
 {
   "name": "@visao/ckeditor5-video",
-  "version": "23.1.0",
+  "version": "27.1.0",
   "description": "Video features for CKEditor 5 (like Image features).",
   "keywords": [
     "ckeditor",
@@ -13,18 +13,21 @@
   ],
   "scripts": {
     "build": "webpack --mode development",
-    "build:watch": "webpack --mode development -w"
+    "build:watch": "webpack --mode development -w",
+    "dll:build": "webpack"
   },
+  "main": "src/index.js",
   "dependencies": {
+    "@ckeditor/ckeditor5-ui": "^27.1.0",
+    "ckeditor5": "^27.1.0"
+  },
+  "devDependencies": {
     "@ckeditor/ckeditor5-clipboard": "^27.1.0",
     "@ckeditor/ckeditor5-core": "^27.1.0",
     "@ckeditor/ckeditor5-engine": "^27.1.0",
-    "@ckeditor/ckeditor5-ui": "^27.1.0",
     "@ckeditor/ckeditor5-upload": "^27.1.0",
     "@ckeditor/ckeditor5-utils": "^27.1.0",
-    "@ckeditor/ckeditor5-widget": "^27.1.0"
-  },
-  "devDependencies": {
+    "@ckeditor/ckeditor5-widget": "^27.1.0",
     "@ckeditor/ckeditor5-basic-styles": "^27.1.0",
     "@ckeditor/ckeditor5-dev-utils": "^24.0.2",
     "@ckeditor/ckeditor5-editor-classic": "^27.1.0",
@@ -57,6 +60,7 @@
   "files": [
     "lang",
     "src",
-    "theme"
+    "theme",
+    "build"
   ]
 }

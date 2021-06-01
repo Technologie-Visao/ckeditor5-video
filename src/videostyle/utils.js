@@ -1,15 +1,12 @@
-import fullWidthIcon from '@ckeditor/ckeditor5-core/theme/icons/object-full-width.svg';
-import leftIcon from '@ckeditor/ckeditor5-core/theme/icons/object-left.svg';
-import centerIcon from '@ckeditor/ckeditor5-core/theme/icons/object-center.svg';
-import rightIcon from '@ckeditor/ckeditor5-core/theme/icons/object-right.svg';
-import { logWarning } from '@ckeditor/ckeditor5-utils/src/ckeditorerror';
+import { logWarning } from 'ckeditor5/src/utils';
+import { icons } from 'ckeditor5/src/core';
 
 const defaultStyles = {
     // This option is equal to the situation when no style is applied.
     full: {
         name: 'full',
         title: 'Full size video',
-        icon: fullWidthIcon,
+        icon: icons.objectFullWidth,
         isDefault: true
     },
 
@@ -17,7 +14,7 @@ const defaultStyles = {
     side: {
         name: 'side',
         title: 'Side video',
-        icon: rightIcon,
+        icon: icons.objectRight,
         className: 'video-style-side'
     },
 
@@ -25,7 +22,7 @@ const defaultStyles = {
     alignLeft: {
         name: 'alignLeft',
         title: 'Left aligned video',
-        icon: leftIcon,
+        icon: icons.objectLeft,
         className: 'video-style-align-left'
     },
 
@@ -33,7 +30,7 @@ const defaultStyles = {
     alignCenter: {
         name: 'alignCenter',
         title: 'Centered video',
-        icon: centerIcon,
+        icon: icons.objectCenter,
         className: 'video-style-align-center'
     },
 
@@ -41,16 +38,16 @@ const defaultStyles = {
     alignRight: {
         name: 'alignRight',
         title: 'Right aligned video',
-        icon: rightIcon,
+        icon: icons.objectRight,
         className: 'video-style-align-right'
     }
 };
 
 const defaultIcons = {
-    full: fullWidthIcon,
-    left: leftIcon,
-    right: rightIcon,
-    center: centerIcon
+    full: icons.objectFullWidth,
+    left: icons.objectLeft,
+    right: icons.objectRight,
+    center: icons.objectCenter
 };
 
 export function normalizeVideoStyles( configuredStyles = [] ) {

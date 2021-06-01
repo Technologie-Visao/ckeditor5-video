@@ -1,4 +1,4 @@
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
+import { Plugin } from 'ckeditor5/src/core';
 import VideoLoadObserver from './videoloadobserver';
 
 import {
@@ -8,7 +8,7 @@ import {
 
 import { toVideoWidget } from './utils';
 
-import VideoInsertCommand from './videoinsertcommand';
+import InsertVideoCommand from './insertvideocommand';
 
 export default class VideoEditing extends Plugin {
 	static get pluginName() {
@@ -55,7 +55,9 @@ export default class VideoEditing extends Plugin {
 			} )
 			.add( viewFigureToModel() );
 
-		editor.commands.add( 'videoInsert', new VideoInsertCommand( editor ) );
+		const insertVideoCommand = new InsertVideoCommand( editor );
+		editor.commands.add( 'insertImage', insertVideoCommand );
+		editor.commands.add( 'videoInsert', insertVideoCommand );
 	}
 }
 
