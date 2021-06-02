@@ -1,7 +1,7 @@
 import Command from '@ckeditor/ckeditor5-core/src/command';
 import { insertVideo, isVideoAllowed } from './utils';
 
-export default class VideoInsertCommand extends Command {
+export default class InsertVideoCommand extends Command {
 	refresh() {
 		this.isEnabled = isVideoAllowed( this.editor.model );
 	}

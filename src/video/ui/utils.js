@@ -1,4 +1,4 @@
-import BalloonPanelView from '@ckeditor/ckeditor5-ui/src/panel/balloon/balloonpanelview';
+import { BalloonPanelView } from 'ckeditor5/src/ui';
 import { getSelectedVideoWidget } from '../utils';
 
 export function repositionContextualBalloon( editor ) {

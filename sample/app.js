@@ -11,6 +11,7 @@ import Video from "../src/video";
 import VideoResize from "../src/videoresize";
 import VideoToolbar from "../src/videotoolbar";
 import VideoStyle from "../src/videostyle";
+import VideoInsert from "../src/videoinsert";
 
 class VideoUploadAdapter {
     constructor( loader ) {
@@ -44,7 +45,7 @@ function VideoUploadAdapterPlugin( editor ) {
 
 ClassicEditor
     .create( document.querySelector( '#editor' ), {
-        plugins: [ Essentials, Paragraph, Bold, Italic, Heading, List, VideoToolbar, Video, VideoUpload, VideoResize, VideoStyle ],
+        plugins: [ Essentials, Paragraph, Bold, Italic, Heading, List, VideoToolbar, Video, VideoUpload, VideoResize, VideoStyle, VideoInsert ],
         extraPlugins: [VideoUploadAdapterPlugin],
         toolbar: [ 'heading', 'bold', 'italic', 'numberedList', 'bulletedList', 'videoUpload' ],
         video: {

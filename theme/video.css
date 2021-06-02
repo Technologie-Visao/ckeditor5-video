@@ -11,3 +11,7 @@
         min-width: 50px;
     }
 }
+
+.ck.ck-editor__editable .video > figcaption.ck-placeholder::before {
+    position: static;
+}

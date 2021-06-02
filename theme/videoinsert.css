@@ -1,0 +1,17 @@
+.ck.ck-video-insert__panel {
+    padding: var(--ck-spacing-large);
+}
+
+.ck.ck-video-insert__ck-finder-button {
+    display: block;
+    width: 100%;
+    margin: var(--ck-spacing-standard) auto;
+    border: 1px solid hsl(0, 0%, 80%);
+    border-radius: var(--ck-border-radius);
+}
+
+.ck.ck-splitbutton > .ck-file-dialog-button.ck-button {
+    padding: 0;
+    margin: 0;
+    border: none;
+}

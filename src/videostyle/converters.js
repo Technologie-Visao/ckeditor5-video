@@ -1,4 +1,4 @@
-import first from '@ckeditor/ckeditor5-utils/src/first';
+import { first } from 'ckeditor5/src/utils';
 
 export function modelToViewStyleAttribute( styles ) {
     return ( evt, data, conversionApi ) => {
@@ -6,7 +6,6 @@ export function modelToViewStyleAttribute( styles ) {
             return;
         }
 
-        // Check if there is class name associated with given value.
         const newStyle = getStyleByName( data.attributeNewValue, styles );
         const oldStyle = getStyleByName( data.attributeOldValue, styles );
 
@@ -24,7 +23,6 @@ export function modelToViewStyleAttribute( styles ) {
 }
 
 export function viewToModelStyleAttribute( styles ) {
-    // Convert only non–default styles.
     const filteredStyles = styles.filter( style => !style.isDefault );
 
     return ( evt, data, conversionApi ) => {
@@ -35,16 +33,12 @@ export function viewToModelStyleAttribute( styles ) {
         const viewFigureElement = data.viewItem;
         const modelVideoElement = first( data.modelRange.getItems() );
 
-        // Check if `videoStyle` attribute is allowed for current element.
-        if ( !conversionApi.schema.checkAttribute( modelVideoElement, 'videoStyle' ) ) {
+        if ( modelVideoElement && !conversionApi.schema.checkAttribute( modelVideoElement, 'videoStyle' ) ) {
             return;
         }
 
-        // Convert style one by one.
         for ( const style of filteredStyles ) {
-            // Try to consume class corresponding with style.
             if ( conversionApi.consumable.consume( viewFigureElement, { classes: style.className } ) ) {
-                // And convert this style to model attribute.
                 conversionApi.writer.setAttribute( 'videoStyle', style.name, modelVideoElement );
             }
         }

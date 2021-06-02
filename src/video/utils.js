@@ -1,4 +1,4 @@
-import { findOptimalInsertionPosition, isWidget, toWidget } from '@ckeditor/ckeditor5-widget/src/utils';
+import { findOptimalInsertionPosition, checkSelectionOnObject, isWidget, toWidget } from 'ckeditor5/src/widget';
 
 export function toVideoWidget( viewElement, writer) {
 	writer.setCustomProperty( 'video', true, viewElement );
@@ -24,16 +24,18 @@ export function isVideo( modelElement ) {
 	return !!modelElement && modelElement.is( 'element', 'video' );
 }
 
-export function insertVideo( writer, model, attributes = {} ) {
-	const videoElement = writer.createElement( 'video', attributes );
+export function insertVideo( model, attributes = {}, insertPosition = null ) {
+	model.change( writer => {
+		const videoElement = writer.createElement( 'video', attributes );
 
-	const insertAtSelection = findOptimalInsertionPosition( model.document.selection, model );
+		const insertAtSelection = insertPosition || findOptimalInsertionPosition( model.document.selection, model );
 
-	model.insertContent( videoElement, insertAtSelection );
+		model.insertContent( videoElement, insertAtSelection );
 
-	if ( videoElement.parent ) {
-		writer.setSelection( videoElement, 'on' );
-	}
+		if ( videoElement.parent ) {
+			writer.setSelection( videoElement, 'on' );
+		}
+	} );
 }
 
 export function isVideoAllowed( model ) {
@@ -63,12 +65,6 @@ function isVideoAllowedInParent( selection, schema, model ) {
 	const parent = getInsertVideoParent( selection, model );
 
 	return schema.checkChild( parent, 'video' );
-}
-
-function checkSelectionOnObject( selection, schema ) {
-	const selectedElement = selection.getSelectedElement();
-
-	return selectedElement && schema.isObject( selectedElement );
 }
 
 function isInOtherVideo( selection ) {

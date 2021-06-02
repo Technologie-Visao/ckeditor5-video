@@ -1,5 +1,5 @@
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
-import VideoResizeCommand from './videoresizecommand';
+import { Plugin } from 'ckeditor5/src/core';
+import ResizeVideoCommand from './resizevideocommand';
 
 export default class VideoResizeEditing extends Plugin {
 	static get pluginName() {
@@ -12,22 +12,22 @@ export default class VideoResizeEditing extends Plugin {
 		editor.config.define( 'video', {
 			resizeUnit: '%',
 			resizeOptions: [ {
-				name: 'videoResize:original',
+				name: 'resizeVideo:original',
 				value: null,
 				icon: 'original'
 			},
 			{
-				name: 'videoResize:25',
+				name: 'resizeVideo:25',
 				value: '25',
 				icon: 'small'
 			},
 			{
-				name: 'videoResize:50',
+				name: 'resizeVideo:50',
 				value: '50',
 				icon: 'medium'
 			},
 			{
-				name: 'videoResize:75',
+				name: 'resizeVideo:75',
 				value: '75',
 				icon: 'large'
 			} ]
@@ -36,12 +36,13 @@ export default class VideoResizeEditing extends Plugin {
 
 	init() {
 		const editor = this.editor;
-		const command = new VideoResizeCommand( editor );
+		const resizeVideoCommand = new ResizeVideoCommand( editor );
 
 		this._registerSchema();
 		this._registerConverters();
 
-		editor.commands.add( 'videoResize', command );
+		editor.commands.add( 'resizeVideo', resizeVideoCommand );
+		editor.commands.add( 'videoResize', resizeVideoCommand );
 	}
 
 	_registerSchema() {

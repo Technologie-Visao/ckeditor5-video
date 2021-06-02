@@ -1,14 +1,14 @@
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
+import { Plugin } from 'ckeditor5/src/core';
+import { FileDialogButtonView } from 'ckeditor5/src/upload';
 import videoUploadIcon from '../../theme/icons/video.svg';
 import {createVideoMediaTypeRegExp} from "./utils";
-import FileDialogButtonView from "@ckeditor/ckeditor5-upload/src/ui/filedialogbuttonview";
 
 export default class VideoUploadUI extends Plugin {
     init() {
         const editor = this.editor;
         const t = editor.t;
 
-        editor.ui.componentFactory.add( 'videoUpload', locale => {
+        const componentCreator = locale => {
             const view = new FileDialogButtonView( locale );
             const command = editor.commands.get('uploadVideo');
             const videoTypes = editor.config.get('video.upload.types');
@@ -25,6 +25,7 @@ export default class VideoUploadUI extends Plugin {
                 tooltip: true
             });
 
+
             view.buttonView.bind('isEnabled').to(command);
 
             view.on('done', (evt, files) => {
@@ -36,6 +37,9 @@ export default class VideoUploadUI extends Plugin {
             });
 
             return view;
-        });
+        };
+
+        editor.ui.componentFactory.add( 'uploadVideo', componentCreator );
+        editor.ui.componentFactory.add( 'videoUpload', componentCreator );
     }
 }

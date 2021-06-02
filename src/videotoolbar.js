@@ -1,6 +1,6 @@
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
+import { Plugin } from 'ckeditor5/src/core';
+import { WidgetToolbarRepository } from 'ckeditor5/src/widget';
 import { getSelectedVideoWidget } from './video/utils';
-import WidgetToolbarRepository from '@ckeditor/ckeditor5-widget/src/widgettoolbarrepository';
 
 export default class VideoToolbar extends Plugin {
     static get requires() {
