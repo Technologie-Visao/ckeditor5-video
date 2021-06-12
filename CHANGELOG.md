@@ -2,6 +2,16 @@ Changelog
 =========
 
 Changes for the past releases below.
+
+## 28.0.0(2021-06-12)
+### Upgraded
+* CkEditor5 dependencies to v28.0.0
+
+## 27.1.0(2021-06-01)
+### Upgraded
+* CkEditor5 dependencies to v27.1.0
+* Adding VideoInsert to the lib
+
 ## 23.1.0(2020-11-19)
 ### Upgraded
 * CkEditor5 dependencies to v23.1.0
