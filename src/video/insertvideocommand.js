@@ -1,19 +1,46 @@
 import Command from '@ckeditor/ckeditor5-core/src/command';
-import { insertVideo, isVideoAllowed } from './utils';
+import { logWarning, toArray } from 'ckeditor5/src/utils';
+
 
 export default class InsertVideoCommand extends Command {
+	constructor( editor ) {
+		super( editor );
+
+		const configVideoInsertType = editor.config.get( 'video.insert.type' );
+
+		if ( !editor.plugins.has( 'VideoBlockEditing' ) ) {
+			if ( configVideoInsertType === 'block' ) {
+				logWarning( 'video-block-plugin-required' );
+			}
+		}
+
+		if ( !editor.plugins.has( 'VideoInlineEditing' ) ) {
+			if ( configVideoInsertType === 'inline' ) {
+				logWarning( 'video-inline-plugin-required' );
+			}
+		}
+	}
+
 	refresh() {
-		this.isEnabled = isVideoAllowed( this.editor.model );
+		this.isEnabled = this.editor.plugins.get( 'VideoUtils' ).isVideoAllowed();
 	}
 
 	execute( options ) {
-		const model = this.editor.model;
+		const sources = toArray( options.source );
+		const selection = this.editor.model.document.selection;
+		const videoUtils = this.editor.plugins.get( 'VideoUtils' );
 
-		model.change( writer => {
-			const sources = Array.isArray( options.source ) ? options.source : [ options.source ];
+		const selectionAttributes = Object.fromEntries( selection.getAttributes() );
 
-			for ( const src of sources ) {
-				insertVideo( writer, model, { src } );
+		sources.forEach( ( src, index ) => {
+			const selectedElement = selection.getSelectedElement();
+
+			if ( index && selectedElement && videoUtils.isVideo( selectedElement ) ) {
+				const position = this.editor.model.createPositionAfter( selectedElement );
+
+				videoUtils.insertVideo( { src, ...selectionAttributes }, position );
+			} else {
+				videoUtils.insertVideo( { src, ...selectionAttributes } );
 			}
 		} );
 	}

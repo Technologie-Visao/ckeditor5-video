@@ -1,34 +1,46 @@
 import { FileRepository } from 'ckeditor5/src/upload';
 import { Command } from 'ckeditor5/src/core';
 import { toArray } from 'ckeditor5/src/utils';
-import { insertVideo, isVideoAllowed } from "../video/utils";
-
-function uploadVideo( model, fileRepository, file ) {
-    const loader = fileRepository.createLoader( file );
-
-    if ( !loader ) {
-        return;
-    }
-
-    insertVideo( model, { uploadId: loader.id } );
-}
 
 export default class UploadVideoCommand extends Command {
     refresh() {
-        const videoElement = this.editor.model.document.selection.getSelectedElement();
-        const isVideo = videoElement && videoElement.name === 'video' || false;
+        const editor = this.editor;
+        const videoUtils = editor.plugins.get( 'VideoUtils' );
+        const selectedElement = editor.model.document.selection.getSelectedElement();
 
-        this.isEnabled = isVideoAllowed( this.editor.model ) || isVideo;
+        this.isEnabled = videoUtils.isVideoAllowed() || videoUtils.isVideo( selectedElement );
     }
 
     execute( options ) {
+        const files = toArray( options.files ) || toArray( options.file ) ;
+        const selection = this.editor.model.document.selection;
+        const videoUtils = this.editor.plugins.get( 'VideoUtils' );
+
+        const selectionAttributes = Object.fromEntries( selection.getAttributes() );
+
+        files.forEach( ( file, index ) => {
+            const selectedElement = selection.getSelectedElement();
+
+            if ( index && selectedElement && videoUtils.isVideo( selectedElement ) ) {
+                const position = this.editor.model.createPositionAfter( selectedElement );
+
+                this._uploadVideo( file, selectionAttributes, position );
+            } else {
+                this._uploadVideo( file, selectionAttributes );
+            }
+        } );
+    }
+
+    _uploadVideo( file, attributes, position ) {
         const editor = this.editor;
-        const model = editor.model;
-
         const fileRepository = editor.plugins.get( FileRepository );
+        const loader = fileRepository.createLoader( file );
+        const videoUtils = editor.plugins.get( 'VideoUtils' );
 
-        for ( const file of toArray( options.files ) ) {
-            uploadVideo( model, fileRepository, file );
+        if ( !loader ) {
+            return;
         }
+
+        videoUtils.insertVideo( { ...attributes, uploadId: loader.id }, position );
     }
 }

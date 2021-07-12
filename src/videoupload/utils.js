@@ -1,12 +1,8 @@
 import { global } from 'ckeditor5/src/utils';
 
-export function createVideoMediaTypeRegExp(types) {
+export function createVideoTypeRegExp(types) {
     const regExpSafeNames = types.map(type => type.replace('+', '\\+'));
     return new RegExp(`^video\\/(${regExpSafeNames.join('|')})$`);
-}
-
-export function isHtmlIncluded( dataTransfer ) {
-    return Array.from( dataTransfer.types ).includes( 'text/html' ) && dataTransfer.getData( 'text/html' ) !== '';
 }
 
 export function fetchLocalVideo( video ) {
@@ -32,8 +28,8 @@ export function fetchLocalVideo( video ) {
     } );
 }
 
-export function isLocalVideo( node ) {
-    if ( !node.is( 'element', 'video' ) || !node.getAttribute( 'src' ) ) {
+export function isLocalVideo( videoUtils, node ) {
+    if ( !videoUtils.isInlineVideoView( node ) || !node.getAttribute( 'src' ) ) {
         return false;
     }
 
@@ -50,12 +46,6 @@ function getVideoMimeType( blob, src ) {
         // Fallback to 'mp4' as common extension.
         return 'video/mp4';
     }
-}
-
-export function getVideosFromChangeItem( editor, item ) {
-    return Array.from( editor.model.createRangeOn( item ) )
-        .filter( value => value.item.is( 'element', 'video' ) )
-        .map( value => value.item );
 }
 
 function convertLocalVideoOnCanvas( videoSrc ) {
@@ -80,7 +70,7 @@ function getBlobFromCanvas( videoSrc ) {
 
             const ctx = canvas.getContext( '2d' );
 
-            ctx.drawImage( video, 0, 0 );
+            ctx.drawVideo( video, 0, 0 );
 
             canvas.toBlob( blob => blob ? resolve( blob ) : reject() );
         } );

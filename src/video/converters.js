@@ -2,7 +2,7 @@ import { first } from 'ckeditor5/src/utils';
 import { getViewVideoFromWidget } from './utils';
 
 
-export function viewFigureToModel() {
+export function viewFigureToModel(videoUtils) {
 	return dispatcher => {
 		dispatcher.on( 'element:figure', converter );
 	};
@@ -14,7 +14,7 @@ export function viewFigureToModel() {
 		}
 
 		// Find an video element inside the figure element.
-		const viewVideo = getViewVideoFromWidget( data.viewItem );
+		const viewVideo = videoUtils.getViewVideoFromWidget( data.viewItem );
 
 		// Do not convert if video element is absent, is missing src attribute or was already converted.
 		if (!viewVideo
@@ -41,9 +41,9 @@ export function viewFigureToModel() {
 	}
 }
 
-export function modelToViewAttributeConverter( attributeKey ) {
+export function modelToViewAttributeConverter( videoUtils, videoType, attributeKey ) {
 	return dispatcher => {
-		dispatcher.on( `attribute:${ attributeKey }:video`, converter );
+		dispatcher.on( `attribute:${ attributeKey }:${videoType}`, converter );
 	};
 
 	function converter( evt, data, conversionApi ) {
@@ -52,8 +52,8 @@ export function modelToViewAttributeConverter( attributeKey ) {
 		}
 
 		const viewWriter = conversionApi.writer;
-		const figure = conversionApi.mapper.toViewElement( data.item );
-		const video = getViewVideoFromWidget( figure );
+		const element = conversionApi.mapper.toViewElement( data.item );
+		const video = videoUtils.getViewVideoFromWidget( element );
 
 		viewWriter.setAttribute( data.attributeKey, data.attributeNewValue || '', video );
 	}

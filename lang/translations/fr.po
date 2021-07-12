@@ -20,6 +20,18 @@ msgctxt "The label for the video widget."
 msgid "video widget"
 msgstr "Objet vidéo"
 
+msgctxt "The label for the video style button that wraps text around the video."
+msgid "Wrap text"
+msgstr "Envelopper le texte"
+
+msgctxt "The label for the video style button that breaks the text around the video."
+msgid "Break text"
+msgstr "Rupture de texte"
+
+msgctxt "The label for the video style button that places the video inside the line of text."
+msgid "In line"
+msgstr "En ligne"
+
 msgctxt "The label for the Side video option."
 msgid "Side vidéo"
 msgstr "Vidéo latérale"

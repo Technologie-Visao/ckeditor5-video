@@ -3,8 +3,7 @@ import { Clipboard } from 'ckeditor5/src/clipboard';
 import { LivePosition, LiveRange } from 'ckeditor5/src/engine';
 import { Undo } from 'ckeditor5/src/undo';
 import { global } from 'ckeditor5/src/utils';
-
-import { insertVideo } from './video/utils';
+import VideoUtils from './videoutils';
 
 // Implements the pattern: http(s)://(www.)example.com/path/to/resource.ext?query=params&maybe=too.
 const VIDEO_URL_REGEXP = new RegExp( String( /^(http(s)?:\/\/)?[\w-]+\.[\w.~:/[\]@!$&'()*+,;=%-]+/.source +
@@ -14,7 +13,7 @@ const VIDEO_URL_REGEXP = new RegExp( String( /^(http(s)?:\/\/)?[\w-]+\.[\w.~:/[\
 
 export default class AutoVideo extends Plugin {
     static get requires() {
-        return [ Clipboard, Undo ];
+        return [ Clipboard, VideoUtils, Undo ];
     }
 
     static get pluginName() {
@@ -64,6 +63,8 @@ export default class AutoVideo extends Plugin {
         const editor = this.editor;
         const urlRange = new LiveRange( leftPosition, rightPosition );
         const walker = urlRange.getWalker( { ignoreElementEnd: true } );
+        const selectionAttributes = Object.fromEntries( editor.model.document.selection.getAttributes() );
+        const videoUtils = this.editor.plugins.get( 'VideoUtils' );
 
         let src = '';
 
@@ -104,7 +105,7 @@ export default class AutoVideo extends Plugin {
                     insertionPosition = this._positionToInsert.toPosition();
                 }
 
-                insertVideo( editor.model, { src }, insertionPosition );
+                videoUtils.insertVideo( { ...selectionAttributes, src }, insertionPosition )
 
                 this._positionToInsert.detach();
                 this._positionToInsert = null;

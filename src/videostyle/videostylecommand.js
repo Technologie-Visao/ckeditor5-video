@@ -1,51 +1,67 @@
 import { Command } from 'ckeditor5/src/core';
-import { isVideo } from '../video/utils';
 
 export default class VideoStyleCommand extends Command {
     constructor( editor, styles ) {
         super( editor );
 
-        this.defaultStyle = false;
+        this._defaultStyles = {
+            videoBlock: false,
+            videoInline: false
+        };
 
-        this.styles = styles.reduce( ( styles, style ) => {
-            styles[ style.name ] = style;
-
+        this._styles = new Map( styles.map( style => {
             if ( style.isDefault ) {
-                this.defaultStyle = style.name;
+                for ( const modelElementName of style.modelElements ) {
+                    this._defaultStyles[ modelElementName ] = style.name;
+                }
             }
 
-            return styles;
-        }, {} );
+            return [ style.name, style ];
+        } ) );
     }
 
     refresh() {
-        const element = this.editor.model.document.selection.getSelectedElement();
+        const editor = this.editor;
+        const videoUtils = editor.plugins.get( 'VideoUtils' );
+        const element = videoUtils.getClosestSelectedVideoElement( this.editor.model.document.selection );
 
-        this.isEnabled = isVideo( element );
+        this.isEnabled = !!element;
 
-        if ( !element ) {
+        if ( !this.isEnabled ) {
             this.value = false;
         } else if ( element.hasAttribute( 'videoStyle' ) ) {
-            const attributeValue = element.getAttribute( 'videoStyle' );
-            this.value = this.styles[ attributeValue ] ? attributeValue : false;
+            this.value = element.getAttribute( 'videoStyle' );
         } else {
-            this.value = this.defaultStyle;
+            this.value = this._defaultStyles[ element.name ];
         }
     }
 
-    execute( options ) {
-        const styleName = options.value;
-
-        const model = this.editor.model;
-        const videoElement = model.document.selection.getSelectedElement();
+    execute( options = {} ) {
+        const editor = this.editor;
+        const model = editor.model;
+        const videoUtils = editor.plugins.get( 'VideoUtils' );
 
         model.change( writer => {
-            // Default style means that there is no `videoStyle` attribute in the model.
-            if ( this.styles[ styleName ].isDefault ) {
+            const requestedStyle = options.value;
+
+            let videoElement = videoUtils.getClosestSelectedVideoElement( model.document.selection );
+
+            if ( requestedStyle && this.shouldConvertVideoType( requestedStyle, videoElement ) ) {
+                this.editor.execute( videoUtils.isBlockVideo( videoElement ) ? 'videoTypeInline' : 'videoTypeBlock' );
+                videoElement = videoUtils.getClosestSelectedVideoElement( model.document.selection );
+            }
+
+            if ( !requestedStyle || this._styles.get( requestedStyle ).isDefault ) {
                 writer.removeAttribute( 'videoStyle', videoElement );
             } else {
-                writer.setAttribute( 'videoStyle', styleName, videoElement );
+                writer.setAttribute( 'videoStyle', requestedStyle, videoElement );
             }
         } );
+    }
+
+    shouldConvertVideoType( requestedStyle, videoElement ) {
+        const supportedTypes = this._styles.get( requestedStyle ).modelElements;
+
+        return !supportedTypes.includes( videoElement.name );
     }
 }

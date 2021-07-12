@@ -2,7 +2,6 @@ import { Plugin } from 'ckeditor5/src/core';
 import VideoInsertPanelView from './ui/videoinsertpanelview';
 import { prepareIntegrations } from './utils';
 
-import { isVideo } from '../video/utils';
 
 export default class VideoInsertUI extends Plugin {
     static get pluginName() {
@@ -44,6 +43,7 @@ export default class VideoInsertUI extends Plugin {
         const insertButtonView = videoInsertView.insertButtonView;
         const insertVideoViaUrlForm = videoInsertView.getIntegration( 'insertVideoViaUrl' );
         const panelView = dropdownView.panelView;
+        const videoUtils = this.editor.plugins.get( 'VideoUtils' );
 
         dropdownView.bind( 'isEnabled' ).to( command );
 
@@ -57,7 +57,7 @@ export default class VideoInsertUI extends Plugin {
             if ( dropdownView.isOpen ) {
                 videoInsertView.focus();
 
-                if ( isVideo( selectedElement ) ) {
+                if ( videoUtils.isVideo( selectedElement ) ) {
                     videoInsertView.videoURLInputValue = selectedElement.getAttribute( 'src' );
                     insertButtonView.label = t( 'Update' );
                     insertVideoViaUrlForm.label = t( 'Update video URL' );
@@ -84,10 +84,9 @@ export default class VideoInsertUI extends Plugin {
         function onSubmit() {
             const selectedElement = editor.model.document.selection.getSelectedElement();
 
-            if ( isVideo( selectedElement ) ) {
+            if ( videoUtils.isVideo( selectedElement ) ) {
                 editor.model.change( writer => {
                     writer.setAttribute( 'src', videoInsertView.videoURLInputValue, selectedElement );
-                    writer.removeAttribute( 'srcset', selectedElement );
                     writer.removeAttribute( 'sizes', selectedElement );
                 } );
             } else {
