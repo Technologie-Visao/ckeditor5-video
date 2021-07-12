@@ -1,7 +1,5 @@
 import { Plugin } from 'ckeditor5/src/core';
 import { FileRepository } from 'ckeditor5/src/upload';
-import { getViewVideoFromWidget } from '../video/utils';
-
 import uploadingPlaceholder from '../../theme/icons/video_placeholder.svg';
 
 import '../../theme/videouploadprogress.css';
@@ -23,7 +21,13 @@ export default class VideoUploadProgress extends Plugin {
         const editor = this.editor;
 
         // Upload status change - update video's view according to that status.
-        editor.editing.downcastDispatcher.on( 'attribute:uploadStatus:video', ( ...args ) => this.uploadStatusChange( ...args ) );
+        if ( editor.plugins.has( 'VideoBlockEditing' ) ) {
+            editor.editing.downcastDispatcher.on( 'attribute:uploadStatus:videoBlock', ( ...args ) => this.uploadStatusChange( ...args ) );
+        }
+
+        if ( editor.plugins.has( 'VideoInlineEditing' ) ) {
+            editor.editing.downcastDispatcher.on( 'attribute:uploadStatus:videoInline', ( ...args ) => this.uploadStatusChange( ...args ) );
+        }
     }
 
     uploadStatusChange( evt, data, conversionApi ) {
@@ -35,6 +39,7 @@ export default class VideoUploadProgress extends Plugin {
             return;
         }
 
+        const videoUtils = editor.plugins.get( 'VideoUtils' );
         const fileRepository = editor.plugins.get( FileRepository );
         const status = uploadId ? data.attributeNewValue : null;
         const placeholder = this.placeholder;
@@ -45,8 +50,7 @@ export default class VideoUploadProgress extends Plugin {
             // Start "appearing" effect and show placeholder with infinite progress bar on the top
             // while video is read from disk.
             _startAppearEffect( viewFigure, viewWriter );
-            _showPlaceholder( placeholder, viewFigure, viewWriter );
-
+            _showPlaceholder( videoUtils, placeholder, viewFigure, viewWriter );
             return;
         }
 
@@ -54,19 +58,19 @@ export default class VideoUploadProgress extends Plugin {
         if ( status === 'uploading' ) {
             const loader = fileRepository.loaders.get( uploadId );
 
-            // Start appear effect if needed - see https://github.com/ckeditor/ckeditor5-image/issues/191.
+            // Start appear effect if needed - see https://github.com/ckeditor/ckeditor5-video/issues/191.
             _startAppearEffect( viewFigure, viewWriter );
 
             if ( !loader ) {
                 // There is no loader associated with uploadId - this means that video came from external changes.
                 // In such cases we still want to show the placeholder until video is fully uploaded.
-                // Show placeholder if needed - see https://github.com/ckeditor/ckeditor5-image/issues/191.
-                _showPlaceholder( placeholder, viewFigure, viewWriter );
+                // Show placeholder if needed - see https://github.com/ckeditor/ckeditor5-video/issues/191.
+                _showPlaceholder( videoUtils, placeholder, viewFigure, viewWriter );
             } else {
                 // Hide placeholder and initialize progress bar showing upload progress.
                 _hidePlaceholder( viewFigure, viewWriter );
                 _showProgressBar( viewFigure, viewWriter, loader, editor.editing.view );
-                _displayLocalVideo( viewFigure, viewWriter, loader );
+                _displayLocalVideo( videoUtils, viewFigure, viewWriter, loader );
             }
 
             return;
@@ -93,12 +97,12 @@ function _stopAppearEffect( viewFigure, writer ) {
     writer.removeClass( 'ck-appear', viewFigure );
 }
 
-function _showPlaceholder( placeholder, viewFigure, writer ) {
+function _showPlaceholder( videoUtils, placeholder, viewFigure, writer ) {
     if ( !viewFigure.hasClass( 'ck-video-upload-placeholder' ) ) {
         writer.addClass( 'ck-video-upload-placeholder', viewFigure );
     }
 
-    const viewVideo = getViewVideoFromWidget( viewFigure );
+    const viewVideo = videoUtils.getViewVideoFromWidget( viewFigure );
 
     if ( viewVideo.getAttribute( 'src' ) !== placeholder ) {
         writer.setAttribute( 'src', placeholder, viewVideo );
@@ -175,9 +179,9 @@ function _removeUIElement( viewFigure, writer, uniqueProperty ) {
     }
 }
 
-function _displayLocalVideo( viewFigure, writer, loader ) {
+function _displayLocalVideo( videoUtils, viewFigure, writer, loader ) {
     if ( loader.data ) {
-        const viewVideo = getViewVideoFromWidget( viewFigure );
+        const viewVideo = videoUtils.getViewVideoFromWidget( viewFigure );
 
         writer.setAttribute( 'src', loader.data, viewVideo );
     }

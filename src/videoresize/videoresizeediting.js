@@ -1,7 +1,12 @@
 import { Plugin } from 'ckeditor5/src/core';
+import VideoUtils from "../videoutils";
 import ResizeVideoCommand from './resizevideocommand';
 
 export default class VideoResizeEditing extends Plugin {
+	static get requires() {
+		return [ VideoUtils ];
+	}
+
 	static get pluginName() {
 		return 'VideoResizeEditing';
 	}
@@ -39,25 +44,28 @@ export default class VideoResizeEditing extends Plugin {
 		const resizeVideoCommand = new ResizeVideoCommand( editor );
 
 		this._registerSchema();
-		this._registerConverters();
+		this._registerConverters( 'videoBlock' );
+		this._registerConverters( 'videoInline' );
 
 		editor.commands.add( 'resizeVideo', resizeVideoCommand );
 		editor.commands.add( 'videoResize', resizeVideoCommand );
 	}
 
 	_registerSchema() {
-		this.editor.model.schema.extend( 'video', { allowAttributes: 'width' } );
-		this.editor.model.schema.setAttributeProperties( 'width', {
-			isFormatting: true
-		} );
+		if ( this.editor.plugins.has( 'VideoBlockEditing' ) ) {
+			this.editor.model.schema.extend( 'videoBlock', { allowAttributes: 'width' } );
+		}
+
+		if ( this.editor.plugins.has( 'VideoInlineEditing' ) ) {
+			this.editor.model.schema.extend( 'videoInline', { allowAttributes: 'width' } );
+		}
 	}
 
-	_registerConverters() {
+	_registerConverters( videoType ) {
 		const editor = this.editor;
 
-		// Dedicated converter to propagate video's attribute to the video tag.
 		editor.conversion.for( 'downcast' ).add( dispatcher =>
-			dispatcher.on( 'attribute:width:video', ( evt, data, conversionApi ) => {
+			dispatcher.on( `attribute:width:${ videoType }`, ( evt, data, conversionApi ) => {
 				if ( !conversionApi.consumable.consume( data.item, evt.name ) ) {
 					return;
 				}
@@ -78,7 +86,7 @@ export default class VideoResizeEditing extends Plugin {
 		editor.conversion.for( 'upcast' )
 			.attributeToAttribute( {
 				view: {
-					name: 'figure',
+					name: videoType === 'videoBlock' ? 'figure' : 'video',
 					styles: {
 						width: /.+/
 					}

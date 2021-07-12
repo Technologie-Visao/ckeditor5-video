@@ -1,11 +1,12 @@
 import { Command } from 'ckeditor5/src/core';
-import { isVideo } from '../video/utils';
 
 export default class ResizeVideoCommand extends Command {
 	refresh() {
-		const element = this.editor.model.document.selection.getSelectedElement();
+		const editor = this.editor;
+		const videoUtils = editor.plugins.get( 'VideoUtils' );
+		const element = videoUtils.getClosestSelectedVideoElement( editor.model.document.selection );
 
-		this.isEnabled = isVideo( element );
+		this.isEnabled = !!element;
 
 		if ( !element || !element.hasAttribute( 'width' ) ) {
 			this.value = null;
@@ -18,8 +19,10 @@ export default class ResizeVideoCommand extends Command {
 	}
 
 	execute( options ) {
-		const model = this.editor.model;
-		const videoElement = model.document.selection.getSelectedElement();
+		const editor = this.editor;
+		const model = editor.model;
+		const videoUtils = editor.plugins.get( 'VideoUtils' );
+		const videoElement = videoUtils.getClosestSelectedVideoElement(model.document.selection);
 
 		this.value = {
 			width: options.width,

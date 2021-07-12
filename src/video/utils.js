@@ -1,84 +1,54 @@
-import { findOptimalInsertionPosition, checkSelectionOnObject, isWidget, toWidget } from 'ckeditor5/src/widget';
+import { first } from 'ckeditor5/src/utils';
 
-export function toVideoWidget( viewElement, writer) {
-	writer.setCustomProperty( 'video', true, viewElement );
+export function createVideoViewElement( writer, videoType ) {
+	const emptyElement = writer.createEmptyElement( 'video' );
 
-	return toWidget( viewElement, writer, {} );
+	const container = videoType === 'videoBlock' ?
+		writer.createContainerElement( 'figure', { class: 'video' } ) :
+		writer.createContainerElement( 'span', { class: 'video-inline' }, { isAllowedInsideAttributeElement: true } );
+
+	writer.insert( writer.createPositionAt( container, 0 ), emptyElement );
+
+	return container;
 }
 
-export function isVideoWidget( viewElement ) {
-	return !!viewElement.getCustomProperty( 'video' ) && isWidget( viewElement );
-}
-
-export function getSelectedVideoWidget( selection ) {
-	const viewElement = selection.getSelectedElement();
-
-	if ( viewElement && isVideoWidget( viewElement ) ) {
-		return viewElement;
+export function getVideoTypeMatcher( editor, matchVideoType ) {
+	if ( editor.plugins.has( 'VideoInlineEditing' ) !== editor.plugins.has( 'VideoBlockEditing' ) ) {
+		return {
+			name: 'video',
+			attributes: {
+				src: true
+			}
+		};
 	}
 
-	return null;
-}
+	const videoUtils = editor.plugins.get( 'VideoUtils' );
 
-export function isVideo( modelElement ) {
-	return !!modelElement && modelElement.is( 'element', 'video' );
-}
-
-export function insertVideo( model, attributes = {}, insertPosition = null ) {
-	model.change( writer => {
-		const videoElement = writer.createElement( 'video', attributes );
-
-		const insertAtSelection = insertPosition || findOptimalInsertionPosition( model.document.selection, model );
-
-		model.insertContent( videoElement, insertAtSelection );
-
-		if ( videoElement.parent ) {
-			writer.setSelection( videoElement, 'on' );
+	return element => {
+		if ( !videoUtils.isInlineVideoView( element ) || !element.hasAttribute( 'src' ) ) {
+			return null;
 		}
-	} );
-}
 
-export function isVideoAllowed( model ) {
-	const schema = model.schema;
-	const selection = model.document.selection;
+		const videoType = element.findAncestor( videoUtils.isBlockVideoView ) ? 'videoBlock' : 'videoInline';
 
-	return isVideoAllowedInParent( selection, schema, model ) &&
-		!checkSelectionOnObject( selection, schema ) &&
-		isInOtherVideo( selection );
-}
-
-export function getViewVideoFromWidget( figureView ) {
-	const figureChildren = [];
-
-	for ( const figureChild of figureView.getChildren() ) {
-		figureChildren.push( figureChild );
-
-		if ( figureChild.is( 'element' ) ) {
-			figureChildren.push( ...figureChild.getChildren() );
+		if ( videoType !== matchVideoType ) {
+			return null;
 		}
+
+		return { name: true, attributes: [ 'src' ] };
+	};
+}
+
+export function determineVideoTypeForInsertionAtSelection( schema, selection ) {
+	const firstBlock = first( selection.getSelectedBlocks() );
+
+	if ( !firstBlock || schema.isObject( firstBlock ) ) {
+		return 'videoBlock';
 	}
 
-	return figureChildren.find( viewChild => viewChild.is( 'element', 'video' ) );
-}
-
-function isVideoAllowedInParent( selection, schema, model ) {
-	const parent = getInsertVideoParent( selection, model );
-
-	return schema.checkChild( parent, 'video' );
-}
-
-function isInOtherVideo( selection ) {
-	return [ ...selection.focus.getAncestors() ].every( ancestor => !ancestor.is( 'element', 'video' ) );
-}
-
-function getInsertVideoParent( selection, model ) {
-	const insertAt = findOptimalInsertionPosition( selection, model );
-
-	const parent = insertAt.parent;
-
-	if ( parent.isEmpty && !parent.is( 'element', '$root' ) ) {
-		return parent.parent;
+	if ( firstBlock.isEmpty && firstBlock.name !== 'listItem' ) {
+		return 'videoBlock';
 	}
 
-	return parent;
+	return 'videoInline';
 }

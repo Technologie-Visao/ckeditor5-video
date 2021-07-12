@@ -4,76 +4,66 @@ import { Notification } from 'ckeditor5/src/ui';
 import { ClipboardPipeline } from 'ckeditor5/src/clipboard';
 import { FileRepository } from 'ckeditor5/src/upload';
 import { env } from 'ckeditor5/src/utils';
-import UploadVideoCommand from "./uploadvideocommand";
-import {
-    createVideoMediaTypeRegExp,
-    fetchLocalVideo,
-    getVideosFromChangeItem,
-    isHtmlIncluded,
-    isLocalVideo
-} from "./utils";
-import {getViewVideoFromWidget} from "../video/utils";
+import VideoUtils from '../videoutils';
+import UploadVideoCommand from './uploadvideocommand';
+import { fetchLocalVideo, isLocalVideo, createVideoTypeRegExp } from './utils';
 
 const DEFAULT_VIDEO_EXTENSIONS = ['mp4', 'webm', 'ogg'];
 
 
 export default class VideoUploadEditing extends Plugin {
     static get requires() {
-        return [FileRepository, Notification, ClipboardPipeline];
+        return [ FileRepository, Notification, ClipboardPipeline, VideoUtils ];
     }
 
-    constructor(editor) {
-        super(editor);
+    static get pluginName() {
+        return 'VideoUploadEditing';
+    }
+
+    constructor( editor ) {
+        super( editor );
 
         editor.config.define('video.upload', {
             types: DEFAULT_VIDEO_EXTENSIONS,
             allowMultipleFiles: true,
         });
+
+        this._uploadVideoElements = new Map();
     }
 
     init() {
         const editor = this.editor;
         const doc = editor.model.document;
-        const schema = editor.model.schema;
         const conversion = editor.conversion;
-        const fileRepository = editor.plugins.get(FileRepository);
-
-        const videoTypes = createVideoMediaTypeRegExp(editor.config.get('video.upload.types'));
-
-        // Setup schema to allow uploadId and uploadStatus for videos.
-        schema.extend('video', {
-            allowAttributes: ['uploadId', 'uploadStatus']
-        });
-
+        const fileRepository = editor.plugins.get( FileRepository );
+        const videoUtils = editor.plugins.get( 'VideoUtils' );
+        const videoTypes = createVideoTypeRegExp( editor.config.get( 'video.upload.types' ) );
         const uploadVideoCommand = new UploadVideoCommand( editor );
+
         editor.commands.add( 'uploadVideo', uploadVideoCommand );
         editor.commands.add( 'videoUpload', uploadVideoCommand );
 
-        // Register upcast converter for uploadId.
-        conversion.for('upcast')
-            .attributeToAttribute({
+        conversion.for( 'upcast' )
+            .attributeToAttribute( {
                 view: {
                     name: 'video',
                     key: 'uploadId'
                 },
                 model: 'uploadId'
-            });
+            } );
 
-        this.listenTo(editor.editing.view.document, 'clipboardInput', (evt, data) => {
-            // Skip if non empty HTML data is included.
-            // https://github.com/ckeditor/ckeditor5-upload/issues/68
-            if (isHtmlIncluded(data.dataTransfer)) {
+        this.listenTo( editor.editing.view.document, 'clipboardInput', ( evt, data ) => {
+            if ( isHtmlIncluded( data.dataTransfer ) ) {
                 return;
             }
 
-            const videos = Array.from(data.dataTransfer.files).filter(file => {
-                // See https://github.com/ckeditor/ckeditor5-image/pull/254.
-                if (!file) {
+            const videos = Array.from( data.dataTransfer.files ).filter( file => {
+                if ( !file ) {
                     return false;
                 }
 
-                return videoTypes.test(file.type);
-            });
+                return videoTypes.test( file.type );
+            } );
 
             if ( !videos.length ) {
                 return;
@@ -81,7 +71,7 @@ export default class VideoUploadEditing extends Plugin {
 
             evt.stop();
 
-            editor.model.change(writer => {
+            editor.model.change( writer => {
                 if ( data.targetRanges ) {
                     writer.setSelection( data.targetRanges.map( viewRange => editor.editing.mapper.toModelRange( viewRange ) ) );
                 }
@@ -89,121 +79,130 @@ export default class VideoUploadEditing extends Plugin {
                 editor.model.enqueueChange( 'default', () => {
                     editor.execute( 'uploadVideo', { file: videos } );
                 } );
-            });
-        });
+            } );
+        } );
 
+        this.listenTo( editor.plugins.get( 'ClipboardPipeline' ), 'inputTransformation', ( evt, data ) => {
+            const fetchableVideos = Array.from( editor.editing.view.createRangeIn( data.content ) )
+                .filter( value => isLocalVideo( videoUtils, value.item ) && !value.item.getAttribute( 'uploadProcessed' ) )
+                .map( value => { return { promise: fetchLocalVideo( value.item ), videoElement: value.item }; } );
 
-        this.listenTo(editor.plugins.get('ClipboardPipeline'), 'inputTransformation', (evt, data) => {
-            const fetchableVideos = Array.from(editor.editing.view.createRangeIn(data.content))
-                .filter(value => isLocalVideo(value.item) && !value.item.getAttribute('uploadProcessed'))
-                .map(value => {
-                    return {promise: fetchLocalVideo(value.item), videoElement: value.item};
-                });
-
-            if (!fetchableVideos.length) {
+            if ( !fetchableVideos.length ) {
                 return;
             }
 
-            const writer = new UpcastWriter(editor.editing.view.document);
+            const writer = new UpcastWriter( editor.editing.view.document );
 
-            for (const fetchableVideo of fetchableVideos) {
-                // Set attribute marking that the video was processed already.
-                writer.setAttribute('uploadProcessed', true, fetchableVideo.videoElement);
+            for ( const fetchableVideo of fetchableVideos ) {
+                writer.setAttribute( 'uploadProcessed', true, fetchableVideo.videoElement );
 
-                const loader = fileRepository.createLoader(fetchableVideo.promise);
+                const loader = fileRepository.createLoader( fetchableVideo.promise );
 
-                if (loader) {
-                    writer.setAttribute('src', '', fetchableVideo.videoElement);
-                    writer.setAttribute('uploadId', loader.id, fetchableVideo.videoElement);
+                if ( loader ) {
+                    writer.setAttribute( 'src', '', fetchableVideo.videoElement );
+                    writer.setAttribute( 'uploadId', loader.id, fetchableVideo.videoElement );
                 }
             }
-        });
+        } );
 
-        // Prevents from the browser redirecting to the dropped video.
-        editor.editing.view.document.on('dragover', (evt, data) => {
+        editor.editing.view.document.on( 'dragover', ( evt, data ) => {
             data.preventDefault();
-        });
+        } );
 
+        doc.on( 'change', () => {
+            const changes = doc.differ.getChanges( { includeChangesInGraveyard: true } ).reverse();
+            const insertedVideosIds = new Set();
 
-        // Upload placeholder videos that appeared in the model.
-        doc.on('change', () => {
-            const changes = doc.differ.getChanges({includeChangesInGraveyard: true});
-
-            for (const entry of changes) {
-                if (entry.type === 'insert' && entry.name !== '$text') {
+            for ( const entry of changes ) {
+                if ( entry.type === 'insert' && entry.name !== '$text' ) {
                     const item = entry.position.nodeAfter;
-                    const isInGraveyard = entry.position.root.rootName === '$graveyard';
+                    const isInsertedInGraveyard = entry.position.root.rootName === '$graveyard';
 
-                    for (const video of getVideosFromChangeItem(editor, item)) {
-                        // Check if the video element still has upload id.
-                        const uploadId = video.getAttribute('uploadId');
+                    for ( const videoElement of getVideosFromChangeItem( editor, item ) ) {
+                        const uploadId = videoElement.getAttribute( 'uploadId' );
 
-                        if (!uploadId) {
+                        if ( !uploadId ) {
                             continue;
                         }
 
-                        // Check if the video is loaded on this client.
-                        const loader = fileRepository.loaders.get(uploadId);
+                        const loader = fileRepository.loaders.get( uploadId );
 
-                        if (!loader) {
+                        if ( !loader ) {
                             continue;
                         }
 
-                        if (isInGraveyard) {
-                            // If the video was inserted to the graveyard - abort the loading process.
-                            loader.abort();
-                        } else if (loader.status === 'idle') {
-                            // If the video was inserted into content and has not been loaded yet, start loading it.
-                            this._readAndUpload(loader, video);
+                        if ( isInsertedInGraveyard ) {
+                            if ( !insertedVideosIds.has( uploadId ) ) {
+                                loader.abort();
+                            }
+                        } else {
+                            insertedVideosIds.add( uploadId );
+                            this._uploadVideoElements.set( uploadId, videoElement );
+
+                            if ( loader.status == 'idle' ) {
+                                this._readAndUpload( loader );
+                            }
                         }
                     }
                 }
             }
-        });
+        } );
 
         this.on( 'uploadComplete', ( evt, { videoElement, data } ) => {
             const urls = data.urls ? data.urls : data;
 
             this.editor.model.change( writer => {
                 writer.setAttribute( 'src', urls.default, videoElement );
-                this._parseAndSetSrcsetAttributeOnVideo( urls, videoElement, writer );
             } );
         }, { priority: 'low' } );
-
     }
 
-    _readAndUpload(loader, videoElement) {
+    afterInit() {
+        const schema = this.editor.model.schema;
+
+        if ( this.editor.plugins.has( 'VideoBlockEditing' ) ) {
+            schema.extend( 'videoBlock', {
+                allowAttributes: [ 'uploadId', 'uploadStatus' ]
+            } );
+        }
+
+        if ( this.editor.plugins.has( 'VideoInlineEditing' ) ) {
+            schema.extend( 'videoInline', {
+                allowAttributes: [ 'uploadId', 'uploadStatus' ]
+            } );
+        }
+    }
+
+    _readAndUpload( loader ) {
         const editor = this.editor;
         const model = editor.model;
         const t = editor.locale.t;
-        const fileRepository = editor.plugins.get(FileRepository);
-        const notification = editor.plugins.get(Notification);
+        const fileRepository = editor.plugins.get( FileRepository );
+        const notification = editor.plugins.get( Notification );
+        const videoUtils = editor.plugins.get( 'VideoUtils' );
+        const videoUploadElements = this._uploadVideoElements;
 
-        model.enqueueChange('transparent', writer => {
-            writer.setAttribute('uploadStatus', 'reading', videoElement);
-        });
+        model.enqueueChange( 'transparent', writer => {
+            writer.setAttribute( 'uploadStatus', 'reading', videoUploadElements.get( loader.id ) );
+        } );
 
         return loader.read()
-            .then(() => {
+            .then( () => {
                 const promise = loader.upload();
+                const videoElement = videoUploadElements.get( loader.id );
 
-                // Force re–paint in Safari. Without it, the video will display with a wrong size.
-                // https://github.com/ckeditor/ckeditor5/issues/1975
-                /* istanbul ignore next */
-                if (env.isSafari) {
-                    const viewFigure = editor.editing.mapper.toViewElement(videoElement);
-                    const viewVideo = getViewVideoFromWidget(viewFigure);
+                if ( env.isSafari ) {
+                    const viewFigure = editor.editing.mapper.toViewElement( videoElement );
+                    const viewImg = videoUtils.getViewVideoFromWidget( viewFigure );
 
-                    editor.editing.view.once('render', () => {
-                        // Early returns just to be safe. There might be some code ran
-                        // in between the outer scope and this callback.
-                        if (!viewVideo.parent) {
+                    editor.editing.view.once( 'render', () => {
+                        if ( !viewImg.parent ) {
                             return;
                         }
 
-                        const domFigure = editor.editing.view.domConverter.mapViewToDom(viewVideo.parent);
+                        const domFigure = editor.editing.view.domConverter.mapViewToDom( viewImg.parent );
 
-                        if (!domFigure) {
+                        if ( !domFigure ) {
                             return;
                         }
 
@@ -211,81 +210,71 @@ export default class VideoUploadEditing extends Plugin {
 
                         domFigure.style.display = 'none';
 
-                        // Make sure this line will never be removed during minification for having "no effect".
                         domFigure._ckHack = domFigure.offsetHeight;
 
                         domFigure.style.display = originalDisplay;
-                    });
+                    } );
                 }
 
-                model.enqueueChange('transparent', writer => {
-                    writer.setAttribute('uploadStatus', 'uploading', videoElement);
-                });
+                model.enqueueChange( 'transparent', writer => {
+                    writer.setAttribute( 'uploadStatus', 'uploading', videoElement );
+                } );
 
                 return promise;
-            })
-            .then(data => {
-                model.enqueueChange('transparent', writer => {
+            } )
+            .then( data => {
+                model.enqueueChange( 'transparent', writer => {
+                    const videoElement = videoUploadElements.get( loader.id );
+
                     writer.setAttribute( 'uploadStatus', 'complete', videoElement );
+
                     this.fire( 'uploadComplete', { data, videoElement } );
-                });
+                } );
 
                 clean();
-            })
-            .catch(error => {
-                // If status is not 'error' nor 'aborted' - throw error because it means that something else went wrong,
-                // it might be generic error and it would be real pain to find what is going on.
-                if (loader.status !== 'error' && loader.status !== 'aborted') {
+            } )
+            .catch( error => {
+                if ( loader.status !== 'error' && loader.status !== 'aborted' ) {
                     throw error;
                 }
 
-                // Might be 'aborted'.
-                if (loader.status === 'error' && error) {
-                    notification.showWarning(error, {
-                        title: t('Upload failed'),
+                if ( loader.status == 'error' && error ) {
+                    notification.showWarning( error, {
+                        title: t( 'Upload failed' ),
                         namespace: 'upload'
-                    });
+                    } );
                 }
+
+                model.enqueueChange( 'transparent', writer => {
+                    writer.remove( videoUploadElements.get( loader.id ) );
+                } );
 
                 clean();
-
-                // Permanently remove video from insertion batch.
-                model.enqueueChange('transparent', writer => {
-                    writer.remove(videoElement);
-                });
-            });
+            } );
 
         function clean() {
-            model.enqueueChange('transparent', writer => {
-                writer.removeAttribute('uploadId', videoElement);
-                writer.removeAttribute('uploadStatus', videoElement);
-            });
+            model.enqueueChange( 'transparent', writer => {
+                const videoElement = videoUploadElements.get( loader.id );
 
-            fileRepository.destroyLoader(loader);
+                writer.removeAttribute( 'uploadId', videoElement );
+                writer.removeAttribute( 'uploadStatus', videoElement );
+
+                videoUploadElements.delete( loader.id );
+            } );
+
+            fileRepository.destroyLoader( loader );
         }
     }
+}
 
-    _parseAndSetSrcsetAttributeOnVideo(data, video, writer ) {
-        let maxWidth = 0;
+export function isHtmlIncluded( dataTransfer ) {
+    return Array.from( dataTransfer.types ).includes( 'text/html' ) && dataTransfer.getData( 'text/html' ) !== '';
+}
 
-        const srcsetAttribute = Object.keys( data )
-            .filter( key => {
-                const width = parseInt( key, 10 );
+function getVideosFromChangeItem( editor, item ) {
+    const videoUtils = editor.plugins.get( 'VideoUtils' );
 
-                if ( !isNaN( width ) ) {
-                    maxWidth = Math.max( maxWidth, width );
-
-                    return true;
-                }
-            } )
-            .map( key => `${ data[ key ] } ${ key }w` )
-            .join( ', ' );
-
-        if ( srcsetAttribute != '' ) {
-            writer.setAttribute( 'srcset', {
-                data: srcsetAttribute,
-                width: maxWidth
-            }, video );
-        }
-    }
+    return Array.from( editor.model.createRangeOn( item ) )
+        .filter( value => videoUtils.isVideo( value.item ) )
+        .map( value => value.item );
 }
