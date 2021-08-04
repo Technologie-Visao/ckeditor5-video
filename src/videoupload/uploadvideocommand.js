@@ -12,10 +12,13 @@ export default class UploadVideoCommand extends Command {
     }
 
     execute( options ) {
-        const files = toArray( options.files ) || toArray( options.file ) ;
+        if (!options.file && !options.files) {
+            return;
+        }
+
+        const files = options.file ? toArray( options.file ) : toArray( options.files );
         const selection = this.editor.model.document.selection;
         const videoUtils = this.editor.plugins.get( 'VideoUtils' );
-
         const selectionAttributes = Object.fromEntries( selection.getAttributes() );
 
         files.forEach( ( file, index ) => {
