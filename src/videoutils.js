@@ -1,6 +1,6 @@
 import { Plugin } from 'ckeditor5/src/core';
 import { findOptimalInsertionRange, isWidget, toWidget } from 'ckeditor5/src/widget';
-import {determineVideoTypeForInsertionAtSelection, isVideo} from './video/utils';
+import { determineVideoTypeForInsertionAtSelection } from './video/utils';
 
 export default class VideoUtils extends Plugin {
     static get pluginName() {
@@ -40,7 +40,7 @@ export default class VideoUtils extends Plugin {
         return model.change( writer => {
             const videoElement = writer.createElement( videoType, attributes );
 
-            if ( !selectable && videoType != 'videoInline' ) {
+            if ( !selectable && videoType !== 'videoInline' ) {
                 selectable = findOptimalInsertionRange( selection, model );
             }
 
@@ -89,7 +89,7 @@ export default class VideoUtils extends Plugin {
         return isVideoAllowedInParent( this.editor, selection ) && isNotInsideVideo( selection );
     }
 
-    toVideoWidget(viewElement, writer, label ) {
+    toVideoWidget(viewElement, writer ) {
         writer.setCustomProperty( 'video', true, viewElement );
 
         return toWidget( viewElement, writer);
@@ -107,28 +107,24 @@ export default class VideoUtils extends Plugin {
         return !!modelElement && modelElement.is( 'element', 'videoInline' );
     }
 
-    getViewVideoFromWidget(figureView ) {
+    findViewVideoElement(figureView ) {
         if ( this.isInlineVideoView( figureView ) ) {
             return figureView;
         }
 
-        const figureChildren = [];
+        const editingView = this.editor.editing.view;
 
-        for ( const figureChild of figureView.getChildren() ) {
-            figureChildren.push( figureChild );
-
-            if ( figureChild.is( 'element' ) ) {
-                figureChildren.push( ...figureChild.getChildren() );
+        for ( const { item } of editingView.createRangeIn( figureView ) ) {
+            if ( this.isInlineVideoView( item ) ) {
+                return item;
             }
         }
-
-        return figureChildren.find( this.isInlineVideoView );
     }
 }
 function isVideoAllowedInParent( editor, selection ) {
     const videoType = determineVideoTypeForInsertion( editor, selection );
 
-    if ( videoType == 'videoBlock' ) {
+    if ( videoType === 'videoBlock' ) {
         const parent = getInsertVideoParent( selection, editor.model );
 
         if ( editor.model.schema.checkChild( parent, 'videoBlock' ) ) {

@@ -2,6 +2,11 @@ Changelog
 =========
 
 Changes for the past releases below.
+
+## 29.0.0(2021-09-04)
+### Upgraded
+* CkEditor5 dependencies to v29.1.0
+
 ## 29.0.1(2021-09-04)
 ### Upgraded
 * Bugfix for when inserting a video, the wrong file vs files options is being used

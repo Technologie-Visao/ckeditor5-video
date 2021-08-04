@@ -193,14 +193,14 @@ export default class VideoUploadEditing extends Plugin {
 
                 if ( env.isSafari ) {
                     const viewFigure = editor.editing.mapper.toViewElement( videoElement );
-                    const viewImg = videoUtils.getViewVideoFromWidget( viewFigure );
+                    const viewVideo = videoUtils.findViewVideoElement( viewFigure );
 
                     editor.editing.view.once( 'render', () => {
-                        if ( !viewImg.parent ) {
+                        if ( !viewVideo.parent ) {
                             return;
                         }
 
-                        const domFigure = editor.editing.view.domConverter.mapViewToDom( viewImg.parent );
+                        const domFigure = editor.editing.view.domConverter.mapViewToDom( viewVideo.parent );
 
                         if ( !domFigure ) {
                             return;
@@ -238,7 +238,7 @@ export default class VideoUploadEditing extends Plugin {
                     throw error;
                 }
 
-                if ( loader.status == 'error' && error ) {
+                if ( loader.status === 'error' && error ) {
                     notification.showWarning( error, {
                         title: t( 'Upload failed' ),
                         namespace: 'upload'

@@ -102,7 +102,7 @@ function _showPlaceholder( videoUtils, placeholder, viewFigure, writer ) {
         writer.addClass( 'ck-video-upload-placeholder', viewFigure );
     }
 
-    const viewVideo = videoUtils.getViewVideoFromWidget( viewFigure );
+    const viewVideo = videoUtils.findViewVideoElement( viewFigure );
 
     if ( viewVideo.getAttribute( 'src' ) !== placeholder ) {
         writer.setAttribute( 'src', placeholder, viewVideo );
@@ -181,7 +181,7 @@ function _removeUIElement( viewFigure, writer, uniqueProperty ) {
 
 function _displayLocalVideo( videoUtils, viewFigure, writer, loader ) {
     if ( loader.data ) {
-        const viewVideo = videoUtils.getViewVideoFromWidget( viewFigure );
+        const viewVideo = videoUtils.findViewVideoElement( viewFigure );
 
         writer.setAttribute( 'src', loader.data, viewVideo );
     }
