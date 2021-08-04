@@ -1,12 +1,12 @@
 import { Plugin } from 'ckeditor5/src/core';
 import { ClipboardPipeline } from 'ckeditor5/src/clipboard';
 import { UpcastWriter } from 'ckeditor5/src/engine';
-import { modelToViewAttributeConverter } from './converters';
+import {downcastVideoAttribute} from './converters';
 import VideoEditing from './videoediting';
 import VideoTypeCommand from './videotypecommand';
 import VideoUtils from '../videoutils';
 import {
-    getVideoTypeMatcher,
+    getVideoViewElementMatcher,
     createVideoViewElement,
     determineVideoTypeForInsertionAtSelection
 } from './utils';
@@ -68,11 +68,11 @@ export default class VideoInlineEditing extends Plugin {
             } );
 
         conversion.for( 'downcast' )
-            .add( modelToViewAttributeConverter( videoUtils, 'videoInline', 'src' ) );
+            .add( downcastVideoAttribute( videoUtils, 'videoInline', 'src' ) );
 
         conversion.for( 'upcast' )
             .elementToElement( {
-                view: getVideoTypeMatcher( editor, 'videoInline' ),
+                view: getVideoViewElementMatcher( editor, 'videoInline' ),
                 model: ( viewVideo, { writer } ) => writer.createElement( 'videoInline', { src: viewVideo.getAttribute( 'src' ) } )
             } );
     }
@@ -108,7 +108,7 @@ export default class VideoInlineEditing extends Plugin {
                         Array.from( blockViewVideo.getAttributes() )
                             .forEach( attribute => writer.setAttribute(
                                 ...attribute,
-                                videoUtils.getViewVideoFromWidget( blockViewVideo )
+                                videoUtils.findViewVideoElement( blockViewVideo )
                             ) );
 
                         return blockViewVideo.getChild( 0 );

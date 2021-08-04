@@ -2,7 +2,8 @@ import { Plugin } from 'ckeditor5/src/core';
 import { WidgetResize } from 'ckeditor5/src/widget';
 import VideoLoadObserver from '../video/videoloadobserver';
 
-const RESIZABLE_VIDEOS_CSS_SELECTOR = 'figure.video.ck-widget > video,' +
+const RESIZABLE_VIDEOS_CSS_SELECTOR =
+	'figure.video.ck-widget > video,' +
 	'figure.video.ck-widget > a > video,' +
 	'span.video-inline.ck-widget > video';
 

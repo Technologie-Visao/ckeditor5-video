@@ -12,7 +12,7 @@ export function createVideoViewElement( writer, videoType ) {
 	return container;
 }
 
-export function getVideoTypeMatcher( editor, matchVideoType ) {
+export function getVideoViewElementMatcher( editor, matchVideoType ) {
 	if ( editor.plugins.has( 'VideoInlineEditing' ) !== editor.plugins.has( 'VideoBlockEditing' ) ) {
 		return {
 			name: 'video',

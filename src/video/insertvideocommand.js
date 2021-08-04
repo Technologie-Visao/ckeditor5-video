@@ -26,21 +26,25 @@ export default class InsertVideoCommand extends Command {
 	}
 
 	execute( options ) {
-		const sources = toArray( options.source );
+		const sourceDefinitions = toArray( options.source );
 		const selection = this.editor.model.document.selection;
 		const videoUtils = this.editor.plugins.get( 'VideoUtils' );
 
 		const selectionAttributes = Object.fromEntries( selection.getAttributes() );
 
-		sources.forEach( ( src, index ) => {
+		sourceDefinitions.forEach( ( sourceDefinition, index ) => {
 			const selectedElement = selection.getSelectedElement();
+
+			if ( typeof sourceDefinition === 'string' ) {
+				sourceDefinition = { src: sourceDefinition };
+			}
 
 			if ( index && selectedElement && videoUtils.isVideo( selectedElement ) ) {
 				const position = this.editor.model.createPositionAfter( selectedElement );
 
-				videoUtils.insertVideo( { src, ...selectionAttributes }, position );
+				videoUtils.insertVideo( { ...sourceDefinition,...selectionAttributes }, position );
 			} else {
-				videoUtils.insertVideo( { src, ...selectionAttributes } );
+				videoUtils.insertVideo( { ...sourceDefinition, ...selectionAttributes } );
 			}
 		} );
 	}

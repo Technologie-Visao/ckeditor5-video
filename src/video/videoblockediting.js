@@ -1,14 +1,17 @@
 import { Plugin } from 'ckeditor5/src/core';
 import { ClipboardPipeline } from 'ckeditor5/src/clipboard';
 import { UpcastWriter } from 'ckeditor5/src/engine';
-import { modelToViewAttributeConverter, viewFigureToModel } from './converters';
+import {
+    downcastVideoAttribute,
+    upcastVideoFigure,
+} from './converters';
 import VideoEditing from './videoediting';
 import VideoTypeCommand from './videotypecommand';
 import VideoUtils from '../videoutils';
 import {
-    getVideoTypeMatcher,
     createVideoViewElement,
-    determineVideoTypeForInsertionAtSelection
+    determineVideoTypeForInsertionAtSelection,
+    getVideoViewElementMatcher
 } from './utils';
 
 export default class VideoBlockEditing extends Plugin {
@@ -61,14 +64,14 @@ export default class VideoBlockEditing extends Plugin {
             } );
 
         conversion.for( 'downcast' )
-            .add( modelToViewAttributeConverter( videoUtils, 'videoBlock', 'src' ) );
+            .add( downcastVideoAttribute( videoUtils, 'videoBlock', 'src' ) );
 
         conversion.for( 'upcast' )
             .elementToElement( {
-                view: getVideoTypeMatcher( editor, 'videoBlock' ),
+                view: getVideoViewElementMatcher( editor, 'videoBlock' ),
                 model: ( viewVideo, { writer } ) => writer.createElement( 'videoBlock', { src: viewVideo.getAttribute( 'src' ) } )
             } )
-            .add( viewFigureToModel( videoUtils ) );
+            .add( upcastVideoFigure( videoUtils ) );
     }
 
     _setupClipboardIntegration() {
