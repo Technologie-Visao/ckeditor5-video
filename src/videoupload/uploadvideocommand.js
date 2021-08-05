@@ -22,12 +22,18 @@ export default class UploadVideoCommand extends Command {
     }
 
     execute( options ) {
+        if (!options.file && !options.files) {
+            return;
+        }
+
+        const files = options.file ? toArray( options.file ) : toArray( options.files );
+
         const editor = this.editor;
         const model = editor.model;
 
         const fileRepository = editor.plugins.get( FileRepository );
 
-        for ( const file of toArray( options.files ) ) {
+        for ( const file of files ) {
             uploadVideo( model, fileRepository, file );
         }
     }
