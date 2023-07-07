@@ -22,15 +22,15 @@ Add this to your custom build or inside your project.
 
 -With yarn
 
-`yarn add -D @visao/@visao/ckeditor5-video    `
-- Works pretty much just like Image upload. 
+`yarn add -D @visao/ckeditor5-video    `
+- Works pretty much just like Image upload.
 
 ## Plugins
 
-#### Video Plugin 
+#### Video Plugin
 - Plugin to parse videos in the editor
 - Mandatory for the other plugins VideoRelated plugins
-    
+
 ```
 ClassicEditor
     .create( document.querySelector( '#editor' ), {
@@ -40,15 +40,15 @@ ClassicEditor
 
 ```
 
-#### VideoUpload Plugin 
-- Plugin to upload video files via toolbar upload prompt or drag and drop functionalities 
+#### VideoUpload Plugin
+- Plugin to upload video files via toolbar upload prompt or drag and drop functionalities
 - Specify allowed media(mime) types. Default => `['mp4', 'webm', 'ogg']`
 - Allow multiple file upload or not, Default => `true`
-- Add the `videoUpload` toolbar option to access the file repository 
-- Must provide an `UploadAdapter`. 
+- Add the `videoUpload` toolbar option to access the file repository
+- Must provide an `UploadAdapter`.
 See [ckeditor5 documentation](https://ckeditor.com/docs/ckeditor5/latest/framework/guides/deep-dive/upload-adapter.html)
 - The use of the Video plugin is mandatory for this plugin to work
-    
+
 ```
 function VideoUploadAdapterPlugin( editor ) {
     editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
@@ -74,7 +74,7 @@ ClassicEditor
 - Balloon toolbar for different Video plugin plugins
 - See VideoResizing and VideoStyle sections for examples
 
-#### VideoResizing Plugin 
+#### VideoResizing Plugin
 - Plugin for resizing the video in the editor
 - Should work just like image resize. See the ck-editor 5 documentation for more examples.
 ```
@@ -136,11 +136,11 @@ ClassicEditor
         },
     } )
 ```
-  
+
 
 
 ## License
 
-Licensed under the terms of 
-[GNU General Public License Version 2 or later](http://www.gnu.org/licenses/gpl.html). For full details about the license, 
+Licensed under the terms of
+[GNU General Public License Version 2 or later](http://www.gnu.org/licenses/gpl.html). For full details about the license,
 please check the `LICENSE.md` file.
